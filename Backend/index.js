@@ -2,7 +2,7 @@ import express from 'express';
 import dotenv from 'dotenv';
 import { dbConnect } from './utils/features.js';
 import cookieParser from 'cookie-parser'
-import { createUser } from './seeders/user.js';
+
 import { v4 as uuid } from "uuid";
 import cors from "cors";
 import { v2 as cloudinary } from "cloudinary";
