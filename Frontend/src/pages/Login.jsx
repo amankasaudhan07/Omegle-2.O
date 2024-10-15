@@ -62,6 +62,7 @@ const Login = () => {
     setIsLoading(true);
 
     try {
+       console.log(server);
       const { data } = await axios.post(
         `${server}/api/v1/user/login`,
         { username: username.value, password: password.value },
