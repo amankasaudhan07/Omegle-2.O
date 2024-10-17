@@ -7,6 +7,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import toast from 'react-hot-toast';
 import axios from 'axios';
 import { server } from '../../constants/config';
+import logo from '../../assets/logo.jpg';
+
 
 
 const Navbar = () => {
@@ -37,16 +39,16 @@ const Navbar = () => {
 
 
   return (
-    <nav className="w-full bg-gray-100 dark:bg-gray-900 text-white">
+    <nav className="w-full bg-gray-900 dark:bg-gray-900 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
 
           {/* Left: Logo / Icon */}
           <div className="flex-shrink-0">
             <img
-            //   src={logo}
+              src={logo}
               alt="Logo"
-              className="h-48 w-auto rounded-full" // Adjust the height as needed
+              className="h-16 w-44 " // Adjust the height as needed
             />
           </div>
           {/* Center: Menu */}

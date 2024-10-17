@@ -17,11 +17,12 @@ const MainPage = () => {
       {/* Left Section */}
       <div className="md:w-1/2 text-center md:text-left mb-8 md:mb-0">
         <h1 className="text-4xl md:text-6xl font-bold text-gray-900 dark:text-white">
-          Talk to strangers,
+          Talk to Strangers,
         </h1>
-        <h2 className="text-2xl md:text-4xl font-semibold text-gray-800 dark:text-gray-300 mt-4">
+        <h2 className="text-2xl md:text-4xl font-semibold text-gray-800 dark:text-white mt-4">
           Make friends!
         </h2>
+        <p className="text-xl md:text-2xl  text-gray-800 dark:text-gray-300 mt-4">Unlock a world of connections – dive into random chats, discover new friendships, and engage with strangers across the globe like never before!</p>
         <button 
           className="mt-8 px-6 py-3 text-lg bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-md transition duration-300 ease-in-out"
           onClick={() => { navigate('/newChat') }}
