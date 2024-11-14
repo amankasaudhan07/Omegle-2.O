@@ -81,13 +81,13 @@ const getMyGroups = async (req, res, next) => {
             members: req.user,
             groupChat: true,
             creator: req.user,
-        }).populate("members", "neme avatar");
+        }).populate("members", "name avatar");
 
         const groups = chats.map(({ members, _id, groupChat, name }) => ({
             _id,
             groupChat,
             name,
-            avatr: members.slice(0, 3).map(({ avatar }) => avatar.url),
+            avatar: members.slice(0, 3).map(({ avatar }) => avatar.url),
         }));
 
         return res.status(200).json({
