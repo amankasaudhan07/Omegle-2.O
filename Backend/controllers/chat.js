@@ -89,6 +89,7 @@ const getMyGroups = async (req, res, next) => {
             name,
             avatar: members.slice(0, 3).map(({ avatar }) => avatar.url),
         }));
+        
 
         return res.status(200).json({
             success: true,
