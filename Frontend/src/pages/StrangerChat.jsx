@@ -60,14 +60,14 @@ const StrangerChat = ({ socket, username, room, connectedUser, goBackToHome }) =
     }
   };
 
-  const toastId = toast.loading('Logging In...');
+  // const toastId = toast.loading('Logging In...');
 
   useEffect(() => {
     const handleReceiveMsg = (data) => {
       setMessageList((list) => [...list, data]); // Update the message list only on receiving data
     };
     const handleDisconnectNotification = () => {
-      toast.error("Your partner has skipped the chat.",{id:toastId});
+      toast.error("Your partner has skipped the chat.");
       goBackToHome();
     };
 
