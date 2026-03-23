@@ -97,6 +97,12 @@ const Chat = ({ chatId ,user}) => {
   }, [chatId]);
 
   useEffect(() => {
+  setMessages([]);        // clear real-time messages
+  setOldMessages([]);     // clear old paginated messages
+  setPage(1);             // reset pagination
+ }, [chatId]);
+
+  useEffect(() => {
     if (bottomRef.current) bottomRef.current.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
@@ -164,3 +170,8 @@ const Chat = ({ chatId ,user}) => {
 };
 
 export default AppLayout(Chat);
+
+
+
+
+//  this code is only related to chats b/w users 

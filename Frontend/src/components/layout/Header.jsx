@@ -16,6 +16,8 @@ import {
   setIsNotification,
   setIsSearch,
 } from '../../redux/reducers/misc';
+import logo from '../../assets/logo.jpg'
+import { Badge } from "@mui/material";
 
 const SearchDialog = lazy(() => import('../specific/Search'));
 const NotificationDialog = lazy(() => import('../specific/Notifications'));
@@ -48,9 +50,17 @@ const Header = () => {
     <>
       <header className="bg-gray-900 text-white">
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-16">
+          <div className="flex items-center justify-between h-16 mx-auto max-w-7xl ">
             <div className="flex items-center">
-              <h1 className="text-xl font-bold hidden sm:block">Omegle 2.0</h1>
+              {/* <h1 className="text-xl font-bold hidden sm:block">Omegle 2.0</h1> */}
+               {/* Left: Logo / Icon */}
+                <div className="flex-shrink-0">
+                  <img
+                    src={logo}
+                    alt="Logo"
+                    className="h-16 w-44 " // Adjust the height as needed
+                  />
+                </div>
               <button 
                 className="sm:hidden p-2 rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-white"
                 onClick={handleMobile}
@@ -62,11 +72,28 @@ const Header = () => {
               <IconBtn title="Search" icon={<Search />} onClick={openSearch} />
               <IconBtn title="New Group" icon={<UserPlus />} onClick={openNewGroup} />
               <IconBtn title="Manage Groups" icon={<Users />} onClick={navigateToGroup} />
-              <IconBtn 
+              {/* <IconBtn 
                 title="Notifications" 
                 icon={<Bell />} 
                 onClick={openNotification}
                 badge={notificationCount}
+              /> */}
+              <IconBtn 
+                title="Notifications" 
+                icon={
+                  <Badge
+                    badgeContent={notificationCount}
+                    color="error"
+                    overlap="circular"
+                    anchorOrigin={{
+                      vertical: "top",
+                      horizontal: "right",
+                    }}
+                  >
+                    <Bell />
+                  </Badge>
+                } 
+                onClick={openNotification}
               />
               <IconBtn title="Back" icon={<LogOut />} onClick={navigateBack} />
             </div>

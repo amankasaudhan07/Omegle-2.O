@@ -1,165 +1,124 @@
-import React, { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import React, { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useInputValidation } from "6pp";
-import { useAvailableFriendsQuery, useNewGroupMutation } from "../../redux/api/api";
-import { useAsyncMutation, useErrors } from "../../hooks/hook";
+import {
+  useAvailableFriendsQuery,
+  useNewGroupMutation,
+} from "../../redux/api/api";
+import { useAsyncMutation } from "../../hooks/hook";
 import { setIsNewGroup } from "../../redux/reducers/misc";
-import { Dialog, Transition } from '@headlessui/react';
-import { XMarkIcon } from '@heroicons/react/24/outline';
-import toast from 'react-hot-toast';
+import { Dialog } from "@headlessui/react";
+import { XMarkIcon } from "@heroicons/react/24/outline";
+import toast from "react-hot-toast";
+import Header from "../layout/Header"
 
 const NewGroup = () => {
   const { isNewGroup } = useSelector((state) => state.misc);
   const dispatch = useDispatch();
-  const { isError, isLoading, error, data } = useAvailableFriendsQuery();
-  const [newGroup, isLoadingNewGroup] = useAsyncMutation(useNewGroupMutation);
+
+  const { data, isLoading } = useAvailableFriendsQuery();
+  const [createGroup, creating] = useAsyncMutation(useNewGroupMutation);
+
   const groupName = useInputValidation("");
-  const [selectedMembers, setSelectedMembers] = useState([]);
+  const [members, setMembers] = useState([]);
 
-  useErrors([{ isError, error }]);
+  const close = () => dispatch(setIsNewGroup(false));
 
-  const selectMemberHandler = (id) => {
-    setSelectedMembers((prev) =>
-      prev.includes(id)
-        ? prev.filter((currElement) => currElement !== id)
-        : [...prev, id]
+  const toggleMember = (id) => {
+    setMembers((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
     );
   };
 
-  const submitHandler = () => {
-    if (!groupName.value) return toast.error("Group name is required");
-    if (selectedMembers.length < 2)
-      return toast.error("Please select at least 3 members");
-    newGroup("Creating New Group...", {
+  const handleSubmit = () => {
+    if (!groupName.value) return toast.error("Group name required");
+    if (members.length < 2) return toast.error("Select at least 3 members");
+
+    createGroup("Creating...", {
       name: groupName.value,
-      members: selectedMembers,
+      members,
     });
-    closeHandler();
+
+    close();
   };
 
-  const closeHandler = () => {
-    dispatch(setIsNewGroup(false));
-  };
+  if (!isNewGroup) return null;
 
-  return (
-    <Transition appear show={isNewGroup} as={React.Fragment}>
-      <Dialog as="div" className="relative z-10" onClose={closeHandler}>
-        <Transition.Child
-          as={React.Fragment}
-          enter="ease-out duration-300"
-          enterFrom="opacity-0"
-          enterTo="opacity-100"
-          leave="ease-in duration-200"
-          leaveFrom="opacity-100"
-          leaveTo="opacity-0"
-        >
-          <div className="fixed inset-0 bg-black bg-opacity-25" />
-        </Transition.Child>
-
-        <div className="fixed inset-0 overflow-y-auto">
-          <div className="flex min-h-full items-center justify-center p-4 text-center">
-            <Transition.Child
-              as={React.Fragment}
-              enter="ease-out duration-300"
-              enterFrom="opacity-0 scale-95"
-              enterTo="opacity-100 scale-100"
-              leave="ease-in duration-200"
-              leaveFrom="opacity-100 scale-100"
-              leaveTo="opacity-0 scale-95"
-            >
-              <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
-                <Dialog.Title
-                  as="h3"
-                  className="text-lg font-medium leading-6 text-gray-900 flex justify-between items-center mb-4"
-                >
-                  New Group
-                  <button
-                    onClick={closeHandler}
-                    className="rounded-full p-1 hover:bg-gray-200 transition-colors"
-                  >
-                    <XMarkIcon className="h-5 w-5 text-gray-500" />
-                  </button>
-                </Dialog.Title>
-
-                <div className="mt-2 space-y-4">
-                  <input
-                    type="text"
-                    placeholder="Group Name"
-                    value={groupName.value}
-                    onChange={groupName.changeHandler}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-
-                  <div>
-                    <h4 className="text-sm font-medium text-gray-700 mb-2">Members</h4>
-                    <div className="space-y-2 max-h-60 overflow-y-auto">
-                      {isLoading ? (
-                        <div className="animate-pulse space-y-2">
-                          {[...Array(5)].map((_, index) => (
-                            <div key={index} className="h-10 bg-gray-200 rounded"></div>
-                          ))}
-                        </div>
-                      ) : (
-                        data?.friends?.map((user) => (
-                          <UserItem
-                            key={user._id}
-                            user={user}
-                            isSelected={selectedMembers.includes(user._id)}
-                            onSelect={() => selectMemberHandler(user._id)}
-                          />
-                        ))
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-4 flex justify-end space-x-2">
-                  <button
-                    type="button"
-                    className="inline-flex justify-center rounded-md border border-transparent bg-red-100 px-4 py-2 text-sm font-medium text-red-900 hover:bg-red-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
-                    onClick={closeHandler}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="button"
-                    className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-                    onClick={submitHandler}
-                    disabled={isLoadingNewGroup}
-                  >
-                    {isLoadingNewGroup ? 'Creating...' : 'Create'}
-                  </button>
-                </div>
-              </Dialog.Panel>
-            </Transition.Child>
+  return ( 
+    <Dialog open={isNewGroup} onClose={close} className="fixed inset-0 z-50">
+      <div className="flex items-center justify-center min-h-screen bg-black/30 p-4">
+        
+        <div className="w-full max-w-md bg-white rounded-xl p-5 relative">
+          
+          {/* Header */}
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-semibold">New Group</h2>
+            <button onClick={close}>
+              <XMarkIcon className="w-5 h-5 text-gray-500" />
+            </button>
           </div>
+
+          {/* Input */}
+          <input
+            type="text"
+            placeholder="Group Name"
+            value={groupName.value}
+            onChange={groupName.changeHandler}
+            className="w-full mb-4 px-3 py-2 border rounded-md"
+          />
+
+          {/* Members */}
+          <div className="max-h-60 overflow-y-auto space-y-2 mb-4">
+            {isLoading ? (
+              <p className="text-center text-gray-500">Loading...</p>
+            ) : (
+              data?.friends?.map((user) => (
+                <UserItem
+                  key={user._id}
+                  user={user}
+                  selected={members.includes(user._id)}
+                  onClick={() => toggleMember(user._id)}
+                />
+              ))
+            )}
+          </div>
+
+          {/* Buttons */}
+          <div className="flex justify-end gap-2">
+            <button onClick={close} className="px-4 py-2 bg-gray-200 rounded">
+              Cancel
+            </button>
+            <button
+              onClick={handleSubmit}
+              disabled={creating}
+              className="px-4 py-2 bg-blue-500 text-white rounded"
+            >
+              {creating ? "Creating..." : "Create"}
+            </button>
+          </div>
+
         </div>
-      </Dialog>
-    </Transition>
+      </div>
+    </Dialog>
+   
   );
 };
 
-const UserItem = ({ user, isSelected, onSelect }) => {
-  return (
-    <div 
-      className={`flex items-center space-x-3 p-2 rounded-md cursor-pointer transition-colors ${
-        isSelected ? 'bg-blue-100' : 'hover:bg-gray-100'
-      }`}
-      onClick={onSelect}
-    >
-      <img 
-        src={user.avatar || '/placeholder-avatar.png'} 
-        alt={user.name} 
-        className="w-10 h-10 rounded-full object-cover"
-      />
-      <span className="flex-grow text-sm font-medium text-gray-700">{user.name}</span>
-      {isSelected && (
-        <svg className="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
-          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-        </svg>
-      )}
-    </div>
-  );
-};
+const UserItem = ({ user, selected, onClick }) => (
+  <div
+    onClick={onClick}
+    className={`flex items-center gap-3 p-2 rounded cursor-pointer ${
+      selected ? "bg-blue-100" : "hover:bg-gray-100"
+    }`}
+  >
+    <img
+      src={user.avatar || "/placeholder-avatar.png"}
+      alt={user.name}
+      className="w-10 h-10 rounded-full"
+    />
+    <span className="flex-1 text-sm">{user.name}</span>
+    {selected && <span className="text-blue-500">✔</span>}
+  </div>
+);
 
 export default NewGroup;

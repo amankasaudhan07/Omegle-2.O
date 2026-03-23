@@ -18,6 +18,7 @@ import { useDispatch, useSelector } from "react-redux";
 import AvatarCard from "../components/shared/AvtarCard";
 import UserItem from "../components/shared/UserItem";
 import { useAsyncMutation, useErrors } from "../hooks/hook";
+import Header from "../components/layout/Header";
 import {
   useChatDetailsQuery,
   useDeleteChatMutation,
@@ -123,6 +124,7 @@ const Groups = () => {
 
   const IconBtns = (
     <>
+     
       <div className="fixed top-4 right-4 sm:hidden">
         <IconButton onClick={() => setIsMobileMenuOpen((prev) => !prev)}>
           <MenuIcon />
@@ -209,7 +211,11 @@ const Groups = () => {
   return myGroups.isLoading ? (
     <div className="flex items-center justify-center h-screen">Loading...</div> // Replace this with a Loader component if needed
   ) : (
-    <div className="flex h-screen">
+
+    <>
+     <Header/>
+    
+     <div className="flex h-screen">
       {/* Sidebar for group list */}
       <div className="hidden sm:block sm:w-1/4 border-r border-gray-300">
         <GroupsList myGroups={myGroups?.data?.groups} chatId={chatId} />
@@ -267,6 +273,7 @@ const Groups = () => {
         </Suspense>
       )}
     </div>
+    </>
   );
 };
 

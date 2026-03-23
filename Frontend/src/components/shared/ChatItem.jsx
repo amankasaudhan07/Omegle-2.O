@@ -17,9 +17,9 @@ const ChatItem = ({
 }) => {
   return (
     <Link to={`/chat/${_id}`}  
-    onClick={(e) => {
-      if (chatId === _id) e.preventDefault();
-    }} 
+    // onClick={(e) => {
+    //   if (chatId === _id) e.preventDefault();
+    // }} 
      className="block relative">
       <motion.div
         initial={{ opacity: 0, y: "-100%" }}
