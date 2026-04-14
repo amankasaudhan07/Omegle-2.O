@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 import { Chat } from '../models/chat.js'
 import { Request } from '../models/request.js';
 import { emitEvent,uploadFilesToCloudinary,cookieOptions,sendToken } from '../utils/features.js';
-import { ALERT,NEW_REQUEST, REFETCH_CHATS } from '../constants/events.js';
+import { ALERT,NEW_REQUEST, REFETCH_CHATS,RELATION_UPDATED ,CHAT_CREATED} from '../constants/events.js';
 import {getOtherMember} from '../lib/helper.js'
 
 export const newUser = async (req, res) => {
@@ -48,18 +48,27 @@ export const login = async (req, res) => {
   const { username, password } = req.body;
 
   try {
-    let user = await User.findOne({ username });
+    let userData = await User.findOne({ username });
     // console.log(user);
-    if (!user) {
+    if (!userData) {
       return res.json({ message: "user not found..", success: false });
     }
     //  console.log(password,user.password);
-    const validPass = await bcrypt.compare(password, user.password);
+    const validPass = await bcrypt.compare(password, userData.password);
 
 
     if (!validPass) {
       return res.json({ message: "Incorrect password..", success: false });
     }
+
+    const user = {
+      _id: userData._id,
+      name: userData.name,
+      username: userData.username,
+      avatar: userData.avatar,
+      bio: userData.bio,
+    };
+
     sendToken(res, user, 200, `Welcome Back, ${user.name}`);
   }
   catch (error) {
@@ -68,7 +77,7 @@ export const login = async (req, res) => {
 }
 
 export const logout =async (req, res) => {
-  try {
+  try { 
     return res
     .status(200)
     .cookie("token", "", { ...cookieOptions, maxAge: 0 })
@@ -189,23 +198,48 @@ const acceptFriendRequest = async (req, res, next) => {
       });
     }
 
-    const members = [request.sender._id, request.receiver._id];
+    const members = [request.sender._id.toString(), request.receiver._id.toString()];
 
-    await Promise.all([
-      Chat.create({
-        members,
-        name: `${request.sender.name}-${request.receiver.name}`,
-      }),
-      request.deleteOne(),
-    ]);
+    // await Promise.all([
+    //   Chat.create({
+    //     members,
+    //     name: `${request.sender.name}-${request.receiver.name}`,
+    //     groupChat: false,
+    //   }),
+    //   request.deleteOne(),
+    // ]);
 
+
+     // ✅ ACCEPT → CREATE CHAT
+   
+
+    const chat = await Chat.create({
+      members,
+      name: `${request.sender.name}-${request.receiver.name}`,
+      groupChat: false,
+    });
+
+    await request.deleteOne();
+    
+    
     emitEvent(req, REFETCH_CHATS, members);
+     // 🔥 REAL-TIME RELATION UPDATE
+    emitEvent(req, "relation_updated", members, {
+      status: "friends",
+    });
+   
+
+     
+     emitEvent(req, "CHAT_CREATED", members, {
+      chatId: chat._id.toString(),
+     });
 
     return res.status(200).json({
       success: true,
       message: "Friend Request Accepted",
       senderId: request.sender._id,
     });
+
   }
   catch (err) {
     throw (err);
@@ -282,4 +316,65 @@ const getMyFriends = async (req, res) => {
   }
 };
 
-export { searchUser, sendFriendRequest, acceptFriendRequest, getMyFriends, getMyNotifications };
+const getRelationStatus = async (req, res) => {
+  try {
+    const myId = req.user;
+    const otherId = req.params.userId;
+
+
+    // console.log("myId",myId);
+    // console.log("otherId",otherId);
+
+
+    if (!otherId || otherId === "[object Object]") {
+        return res.status(400).json({ message: "Invalid userId" });
+      }
+
+    // =========================
+    // ✅ 1. Check if already friends (via Chat)
+    // =========================
+    const existingChat = await Chat.findOne({
+      groupChat: false,
+      members: { $all: [myId, otherId] },
+    });
+
+    if (existingChat) {
+      return res.json({ status: "friends" });
+    }
+
+    // =========================
+    // ✅ 2. Check Friend Request
+    // =========================
+    const request = await Request.findOne({
+      $or: [
+        { sender: myId, receiver: otherId },
+        { sender: otherId, receiver: myId },
+      ],
+    });
+
+    // console.log("request",request);
+
+    if (request) {
+      // 👉 YOU sent request
+      if (request.sender.toString() === myId.toString()) {
+        return res.json({ status: "requested", requestId: request._id });
+      }
+
+      // 👉 YOU received request
+      if (request.receiver.toString() === myId.toString()) {
+        return res.json({ status: "pending", requestId: request._id });
+      }
+    }
+
+    // =========================
+    // ✅ 3. No relation
+    // =========================
+    return res.json({ status: "none" });
+
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "Server Error" });
+  }
+};
+
+export { searchUser, sendFriendRequest, acceptFriendRequest, getMyFriends, getMyNotifications ,getRelationStatus};

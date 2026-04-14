@@ -1,6 +1,7 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { server } from "../../constants/config";
 
+
 const api = createApi({
   reducerPath: "api",
   baseQuery: fetchBaseQuery({ baseUrl: `${server}/api/v1/` }),
@@ -31,6 +32,14 @@ const api = createApi({
         body: data,
       }),
       invalidatesTags: ["User"],
+    }),
+
+    getRelationStatus: builder.query({
+       query: (id) => ({
+        url: `user/relation/${id}`,
+        credentials: "include",
+      }),
+     
     }),
 
     getNotifications: builder.query({
@@ -180,4 +189,5 @@ export const {
   useAddGroupMembersMutation,
   useDeleteChatMutation,
   useLeaveGroupMutation,
+  useGetRelationStatusQuery,
 } = api;

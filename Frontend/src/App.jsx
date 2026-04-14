@@ -66,7 +66,16 @@ const App = () => {
           </Route>
 
           <Route path="/" element={<MainPage />} />
-          <Route path='/newChat' element={<NewChat/>}/>
+        
+          <Route
+            path="/newChat"
+            element={
+              <SocketProvider>
+                <NewChat />
+              </SocketProvider>
+            }
+          />
+          
           <Route path='/about' element={<About/>}/>
           <Route path='/support' element={<Support/>}/>
           <Route path='/faq' element={<Faq/>}/>

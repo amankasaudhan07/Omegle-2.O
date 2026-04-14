@@ -62,7 +62,10 @@ const Chat = ({ chatId ,user}) => {
   
   // console.log("aman",chatDetails);
   const members = chatDetails?.data?.chat?.members;
-
+//   console.log("members ->", members);
+// console.log("members type ->", Array.isArray(members));
+// console.log("first member ->", members?.[0]);
+// console.log("first member typeof ->", typeof members?.[0]);
   const messageOnChange = (e) => {
     setMessage(e.target.value);
     if (!IamTyping) {

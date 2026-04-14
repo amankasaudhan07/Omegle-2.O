@@ -1,11 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import io from 'socket.io-client';
+import React, { useEffect, useMemo, useState } from 'react';
 import music from './mixkit-tile-game-reveal-960.wav';
-import { useNavigate } from 'react-router-dom';
-// import  {StrangerChat}  from './StrangerChat';
-
-// Replace with the correct URL where your server is running
-const socket = io.connect("https://omegle-pro.onrender.com");
+import StrangerChat from './StrangerChat.jsx'
+import { useSelector } from "react-redux";
+import { getSocket } from '../socket.jsx';
 
 const NewChat = () => {
   const [username, setUsername] = useState("");
@@ -13,45 +10,63 @@ const NewChat = () => {
   const [showChat, setShowChat] = useState(false);
   const [isMatched, setIsMatched] = useState(false);
   const [connectedUser, setConnectedUser] = useState("");
+  const [partnerUser, setPartnerUser] = useState(null)
   const [onlineUsers, setOnlineUsers] = useState(0); 
   const [waitingUsers, setWaitingUsers] = useState(0); // Waiting users excluding current user
   const [isUserInWaitingList, setIsUserInWaitingList] = useState(false); // Check if current user is in waiting list
   const [isLoading, setIsLoading] = useState(false); // Loading state for the button
-  const notification = new Audio(music);
+  const notification = useMemo(() => new Audio(music), []);
+  const [bothLoggedIn, setBothLoggedIn] = useState(false);
+  const [partnerId, setPartnerId] = useState(null);
 
- 
+  const { user } = useSelector((state) => state.auth);
+  const socket = getSocket();
 
   useEffect(() => {
-    socket.on("matched", (data) => {
+    if (!socket) return;
+
+    const handleMatched = (data) => {
       console.log("Matched event received:", data);
       setRoom(data.roomID);
       setConnectedUser(data.partnerUsername); 
-     console.log(connectedUser) 
+      setPartnerUser(data.partnerUser)
+      setBothLoggedIn(data.bothLoggedIn);   
+      setPartnerId(data.partnerId);    
       setShowChat(true);
       setIsMatched(true);
       setIsLoading(false);
       notification.play();
-    });
+    };
      
-    socket.on("online_users", (count) => {
-      setOnlineUsers(count); // Set the online user count
-    }); 
+    const handleOnlineUsers = (count) => {
+      setOnlineUsers(count);
+    };
 
-    socket.on("waiting_users", (count) => {
-      setWaitingUsers(count); // Update the waiting users count
-    });
+    const handleWaitingUsers = (count) => {
+      setWaitingUsers(count);
+    };
+
+    socket.on("matched", handleMatched);
+    socket.on("online_users", handleOnlineUsers);
+    socket.on("waiting_users", handleWaitingUsers);
 
     return () => {
-      socket.off("matched");
-      socket.off("online_users");
-      socket.off("waiting_users");
+      socket.off("matched", handleMatched);
+      socket.off("online_users", handleOnlineUsers);
+      socket.off("waiting_users", handleWaitingUsers);
     };
-  }, []);
+  }, [notification, socket]);
 
   const findChatPartner = () => {
     if (username !== "") {
       console.log("Emitting find_partner event");
-      socket.emit("find_partner",username);
+      socket.emit("find_partner",
+        {  username,
+           userId: user?._id || null  ,
+           user:user || null,
+        }
+
+      );
       setIsLoading(true);
       setIsUserInWaitingList(true); // Mark the current user as in the waiting list
     }else {
@@ -65,7 +80,10 @@ const NewChat = () => {
     setIsMatched(false);
     setRoom("");
     setConnectedUser("");
-    setUsername(""); // Optional: clear username
+    setPartnerUser(null)
+    setBothLoggedIn(false);   // ✅ reset
+    setPartnerId(null); 
+    // setUsername(""); // Optional: clear username
     setIsUserInWaitingList(false);
   };
 
@@ -84,6 +102,7 @@ const NewChat = () => {
         <input
           type="text"
           placeholder="Enter Your Name"
+           value={username} 
           className="w-full md:w-1/2 p-3 rounded-lg bg-gray-800 text-white placeholder-gray-400 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
           onChange={(e) => setUsername(e.target.value)}
         />
@@ -100,7 +119,9 @@ const NewChat = () => {
       
       )}
       {showChat && isMatched && (
-        <StrangerChat socket={socket} username={username} room={room} connectedUser={connectedUser} goBackToHome={goBackToHome} />
+        <StrangerChat socket={socket} username={username} room={room} connectedUser={connectedUser}  bothLoggedIn={bothLoggedIn}   // ✅ NEW
+  partnerId={partnerId}  partner={partnerUser} goBackToHome={goBackToHome} />
+       
       )}
     </>
   );

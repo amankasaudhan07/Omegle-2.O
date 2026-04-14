@@ -33,6 +33,10 @@ dbConnect();
 export const adminSecretKey =process.env.ADMIN_SECRET_KEY||"jbfdkjnbrkjdn";
 const envMode = process.env.NODE_ENV.trim() ;
 
+// 🔥 Stranger Chat Queue
+let waitingUsers = [];
+let strangerOnlineUsers = 0;
+
 
 const userSocketIDs = new Map();
 const onlineUsers = new Set();
@@ -62,30 +66,67 @@ app.use('/api/v1/chat',chatRoute);
 app.use('/api/v1/admin',adminRoute);
 
 app.get("/", (req, res) => {
-  res.send("Hello World");
+  res.send("Server running...");
 });
 
+
+
+// io.use((socket, next) => {
+//   cookieParser()(
+//     socket.request,
+//     socket.request.res,
+//     async (err) => await socketAuthenticator(err, socket, next)
+//   );
+// });
 
 
 io.use((socket, next) => {
-  cookieParser()(
-    socket.request,
-    socket.request.res,
-    async (err) => await socketAuthenticator(err, socket, next)
-  );
+  cookieParser()(socket.request, socket.request.res, async (err) => {
+    if (err) return next(err);
+
+    try {
+      const authToken = socket.request.cookies?.token;
+
+      // Allow stranger chat users without login
+      if (!authToken) {
+        socket.user = null;
+        return next();
+      }
+
+      await socketAuthenticator(null, socket, next);
+    } catch (error) {
+      socket.user = null;
+      return next();
+    }
+  });
 });
 
 
+
 io.on("connection",(socket)=>{
-    console.log("connected",socket.id);
+    // console.log("connected",socket.id);
      const user = socket.user;
     
       // console.log("socket user",socket);
-    
-    userSocketIDs.set(user._id.toString(), socket.id);
+   
+    if (user) {
+      userSocketIDs.set(user._id.toString(), socket.id);
+    }
      
     socket.on(NEW_MESSAGE,async ({ chatId, members, message })=>{
-        
+        // if (!socket.user) return;
+
+      //   console.log("NEW_MESSAGE members:", members);
+      // console.log("socket.user:", socket.user);
+      // console.log("userSocketIDs map sender:", userSocketIDs.get(socket.user?._id?.toString()));
+
+      // const membersSocket = getSockets(members);
+
+      // console.log("membersSocket:", membersSocket);
+      // console.log("message:", message);
+      // console.log("chatId:", chatId);
+
+        // const user = socket.user;
         const messageForRealTime = {
             content: message,
             _id: uuid(),
@@ -122,16 +163,19 @@ io.on("connection",(socket)=>{
     })
      
     socket.on(START_TYPING, ({ members, chatId }) => {
+      // if (!socket.user) return;
       const membersSockets = getSockets(members);
       socket.to(membersSockets).emit(START_TYPING, { chatId });
     });
   
     socket.on(STOP_TYPING, ({ members, chatId }) => {
+      // if (!socket.user) return;
       const membersSockets = getSockets(members);
       socket.to(membersSockets).emit(STOP_TYPING, { chatId });
     });
   
     socket.on(CHAT_JOINED, ({ userId, members }) => {
+      // if (!socket.user) return;
       onlineUsers.add(userId.toString());
   
       const membersSocket = getSockets(members);
@@ -139,18 +183,106 @@ io.on("connection",(socket)=>{
     });
   
     socket.on(CHAT_LEAVED, ({ userId, members }) => {
+      // if (!socket.user) return;
       onlineUsers.delete(userId.toString());
   
       const membersSocket = getSockets(members);
       io.to(membersSocket).emit(ONLINE_USERS, Array.from(onlineUsers));
     });
+    
   
-    socket.on("disconnect", () => {
-      console.log("disconnected");
-      userSocketIDs.delete(user._id.toString());
-      onlineUsers.delete(user._id.toString());
-      socket.broadcast.emit(ONLINE_USERS, Array.from(onlineUsers));
+
+    //  for stranger chat 
+
+   strangerOnlineUsers++;
+io.emit("online_users", strangerOnlineUsers);
+
+const updateWaitingUsers = () => {
+  io.emit("waiting_users", waitingUsers.length);
+};
+
+socket.on("find_partner", ({ username, userId, user }) => {
+  console.log(`User ${username} ${socket.id} userId: ${userId}`);
+
+  if (waitingUsers.length > 0) {
+    const { partnerSocketId, partnerUsername, partnerUserId, partnerUser } =
+      waitingUsers.pop();
+
+    if (partnerSocketId !== socket.id) {
+      const roomID = `${socket.id}-${partnerSocketId}`;
+
+      socket.join(roomID);
+
+      const partnerSocket = io.sockets.sockets.get(partnerSocketId);
+      partnerSocket?.join(roomID);
+
+      const bothLoggedIn = !!userId && !!partnerUserId;
+
+      io.to(socket.id).emit("matched", {
+        roomID,
+        partnerUsername,
+        partnerId: partnerUserId,
+        bothLoggedIn,
+        partnerUser,
+      });
+
+      io.to(partnerSocketId).emit("matched", {
+        roomID,
+        partnerUsername: username,
+        partnerId: userId,
+        bothLoggedIn,
+        partnerUser: user,
+      });
+
+      updateWaitingUsers();
+    }
+  } else {
+    waitingUsers.push({
+      partnerSocketId: socket.id,
+      partnerUsername: username,
+      partnerUserId: userId || null,
+      partnerUser: user || null,
     });
+
+    updateWaitingUsers();
+  }
+});
+
+socket.on("send_message", (data) => {
+  io.to(data.room).emit("receive_message", data);
+});
+
+socket.on("send_image", (data) => {
+  io.to(data.room).emit("receive_image", data);
+});
+
+socket.on("disconnect_chat", ({ room, username }) => {
+  socket.leave(room);
+  socket.to(room).emit("partner_disconnected");
+  console.log(`User ${username} has disconnected from room ${room}`);
+});
+
+
+
+
+
+    socket.on("disconnect", () => {
+  console.log("disconnected");
+
+  if (user) {
+    userSocketIDs.delete(user._id.toString());
+    onlineUsers.delete(user._id.toString());
+    socket.broadcast.emit(ONLINE_USERS, Array.from(onlineUsers));
+  }
+
+  strangerOnlineUsers--;
+  io.emit("online_users", strangerOnlineUsers);
+
+  waitingUsers = waitingUsers.filter(
+    (waitingUser) => waitingUser.partnerSocketId !== socket.id
+  );
+  io.emit("waiting_users", waitingUsers.length);
+});
    
 });
 
