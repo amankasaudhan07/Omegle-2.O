@@ -61,6 +61,7 @@ const deletFilesFromCloudinary = async (public_ids) => {
     console.log("Emitting event:", event);
     console.log("To users:", users);
     console.log("With data:", data);
+	console.log("To sockets:", getSockets(users));
     try {
         const io = req.app.get("io");
         const usersSocket = getSockets(users);

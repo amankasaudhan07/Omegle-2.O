@@ -36,6 +36,8 @@ const envMode = process.env.NODE_ENV.trim() ;
 // 🔥 Stranger Chat Queue
 let waitingUsers = [];
 let strangerOnlineUsers = 0;
+const strangerUsers = new Set();
+
 
 
 const userSocketIDs = new Map();
@@ -270,10 +272,15 @@ socket.on("disconnect_chat", ({ room, username }) => {
   console.log("disconnected");
 
   if (user) {
-    userSocketIDs.delete(user._id.toString());
-    onlineUsers.delete(user._id.toString());
-    socket.broadcast.emit(ONLINE_USERS, Array.from(onlineUsers));
+  const userId = user._id.toString();
+
+  if (userSocketIDs.get(userId) === socket.id) {
+    userSocketIDs.delete(userId);
   }
+
+  onlineUsers.delete(userId);
+  socket.broadcast.emit(ONLINE_USERS, Array.from(onlineUsers));
+}
 
   strangerOnlineUsers--;
   io.emit("online_users", strangerOnlineUsers);

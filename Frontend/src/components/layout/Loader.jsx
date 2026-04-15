@@ -31,7 +31,7 @@ const LayoutLoader = () => {
 
 const TypingLoader = () => {
   return (
-    <div className="flex justify-center items-center space-x-2 p-2">
+    <div className="flex justify-start items-start space-x-2 p-2">
       {[0.1, 0.2, 0.3, 0.4].map((delay, index) => (
         <div
           key={index}

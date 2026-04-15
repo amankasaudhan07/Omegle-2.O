@@ -1,25 +1,26 @@
-import { createContext, useMemo, useContext } from "react";
+import { createContext, useContext, useEffect, useMemo } from "react";
 import io from "socket.io-client";
 import { server } from "./constants/config";
 
-// console.log(server);
-const SocketContext = createContext();
+const SocketContext = createContext(null);
 
 const getSocket = () => useContext(SocketContext);
 
 const SocketProvider = ({ children }) => {
   const socket = useMemo(() => {
-    const s = io(server, { withCredentials: true });
-    s.on("connect_error", (err) => {
-      console.error("Connection Error:", err);
-    });
-
-    // console.log("hbhj",s);
-    return s;
+    return io(server, { withCredentials: true });
   }, []);
 
+  useEffect(() => {
+    return () => {
+      socket.disconnect();
+    };
+  }, [socket]);
+
   return (
-    <SocketContext.Provider value={socket}>{children}</SocketContext.Provider>
+    <SocketContext.Provider value={socket}>
+      {children}
+    </SocketContext.Provider>
   );
 };
 

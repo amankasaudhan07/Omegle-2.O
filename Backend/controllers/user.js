@@ -158,12 +158,24 @@ const sendFriendRequest = async (req, res, next) => {
 
     if (request) return res.status(400).json({ message: "Request already sent", success: false });
 
-    await Request.create({
+    const newRequest = await Request.create({
       sender: req.user,
       receiver: userId,
     });
 
-    emitEvent(req, NEW_REQUEST, [userId]);
+    // emitEvent(req, NEW_REQUEST, [userId]);
+
+    emitEvent(req, RELATION_UPDATED, [req.user], {
+      partnerId: userId,
+      status: "requested",
+      requestId: newRequest._id.toString(),
+    });
+
+    emitEvent(req, RELATION_UPDATED, [userId], {
+      partnerId: req.user.toString(),
+      status: "pending",
+      requestId: newRequest._id.toString(),
+    });
 
     return res.status(200).json({
       success: true,
@@ -189,16 +201,24 @@ const acceptFriendRequest = async (req, res, next) => {
     if (request.receiver._id.toString() !== req.user.toString())
       return res.status(401).json({ message: "You are not authorized to accept this request", success: false });
 
+    const members = [request.sender._id.toString(), request.receiver._id.toString()];
+  
     if (!accept) {
       await request.deleteOne();
-
+      
+       emitEvent(req, RELATION_UPDATED, members, {
+      status: "none",
+      requestId: "",
+    });
+    
       return res.status(200).json({
         success: true,
         message: "Friend Request Rejected",
       });
+
+     
     }
 
-    const members = [request.sender._id.toString(), request.receiver._id.toString()];
 
     // await Promise.all([
     //   Chat.create({
@@ -224,8 +244,9 @@ const acceptFriendRequest = async (req, res, next) => {
     
     emitEvent(req, REFETCH_CHATS, members);
      // 🔥 REAL-TIME RELATION UPDATE
-    emitEvent(req, "relation_updated", members, {
+    emitEvent(req, RELATION_UPDATED, members, {
       status: "friends",
+      requestId: "",
     });
    
 

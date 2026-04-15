@@ -12,6 +12,8 @@ import {
 } from "../redux/api/api";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { RELATION_UPDATED, CHAT_CREATED } from "../constants/events";
+
 
 const StrangerChat = ({ socket, username, room, connectedUser, bothLoggedIn, partnerId,partner, goBackToHome }) => {
   const [currentMessage, setCurrentMessage] = useState("");
@@ -164,36 +166,50 @@ const StrangerChat = ({ socket, username, room, connectedUser, bothLoggedIn, par
 );
 
 useEffect(() => {
-  if (relationData) {
-    console.log("relationData",relationData);
-    setRelation(relationData.status);
-    if(relationData.status=="pending")
-    {
-      setRequestId(relationData.requestId);
-    }
+  if (!relationData) return;
+
+  setRelation(relationData.status);
+
+  if (relationData.requestId) {
+    setRequestId(relationData.requestId);
+  } else {
+    setRequestId("");
   }
 }, [relationData]);
 
-useEffect(() => {
-  const handleChatCreated = (data) => {
 
-    // ✅ STEP 5 → STOP STRANGER CHAT
-    console.log("ohhhhhhh1",data)
-    socket.emit("disconnect_chat", { room, username });
-    // ✅ THEN redirect
-    navigate(`/chat/${data.chatId}`);
+useEffect(() => {
+  console.log("StrangerChat socket id:", socket?.id);
+  console.log("Registering RELATION_UPDATED listener");
+  const handleRelationUpdated = (data) => {
+    
+    console.log("RELATION_UPDATED received:", data);
+    console.log("local partnerId:", partnerId);
+
+    if (data.partnerId && String(data.partnerId) !== String(partnerId)) return;
+    setRelation(data.status);
+
+    if (data.requestId) setRequestId(data.requestId);
+    else setRequestId("");
   };
-  console.log("ohhhhhhh2")
-  socket.on("CHAT_CREATED", handleChatCreated);
-  console.log("ohhhhhhh3")
+
+  const handleChatCreated = (data) => {
+    console.log("chat created", data);
+    // keep navigation logic commented/removed for now if you want to postpone it
+    // socket.emit("disconnect_chat", { room, username });
+    // navigate(`/chat/${data.chatId}`);
+  };
+
+  socket.on(RELATION_UPDATED, handleRelationUpdated);
+  socket.on(CHAT_CREATED, handleChatCreated);
 
   return () => {
-    socket.off("CHAT_CREATED", handleChatCreated);
+    socket.off(RELATION_UPDATED, handleRelationUpdated);
+    socket.off(CHAT_CREATED, handleChatCreated);
   };
-}, [socket, navigate, room, username]);
+}, [socket, partnerId]);
 
 
-   
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white p-4">
       <h1 className="text-2xl md:text-3xl font-semibold mb-4">
