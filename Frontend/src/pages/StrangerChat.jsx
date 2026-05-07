@@ -15,7 +15,7 @@ import { useNavigate } from "react-router-dom";
 import { RELATION_UPDATED, CHAT_CREATED } from "../constants/events";
 
 
-const StrangerChat = ({ socket, username, room, connectedUser, bothLoggedIn, partnerId,partner, goBackToHome }) => {
+const StrangerChat = ({ socket, username, room, connectedUser, bothLoggedIn, partnerId,partner, goBackToHome, onFindNew, isFindingNew = false }) => {
   const [currentMessage, setCurrentMessage] = useState("");
   const [messageList, setMessageList] = useState([]);
   const [image, setImage] = useState(null);
@@ -80,6 +80,11 @@ const StrangerChat = ({ socket, username, room, connectedUser, bothLoggedIn, par
   const handleDisconnect = () => {
     socket.emit("disconnect_chat", { room, username });
     goBackToHome();
+  };
+
+  const handleFindNew = () => {
+    setMessageList([]);
+    onFindNew();
   };
 
   // ✅ Image select
@@ -217,7 +222,9 @@ useEffect(() => {
       </h1>
 
       <div className="font-bold text-green-400 mb-4">
-        You are connected with {connectedUser}
+        {isFindingNew
+          ? "Finding a new partner for you..."
+          : `You are connected with ${connectedUser}`}
       </div>
        
       {partner && (
@@ -325,6 +332,13 @@ useEffect(() => {
               className="p-2 bg-red-500 rounded-lg hover:bg-red-600"
             >
               ESC
+            </button>
+
+            <button
+              onClick={handleFindNew}
+              className="p-2 bg-amber-500 rounded-lg hover:bg-amber-600"
+            >
+              Find New
             </button>
 
             {/* Text Input */}

@@ -18,6 +18,7 @@ const NewChat = () => {
   const notification = useMemo(() => new Audio(music), []);
   const [bothLoggedIn, setBothLoggedIn] = useState(false);
   const [partnerId, setPartnerId] = useState(null);
+  const [isFindingNew, setIsFindingNew] = useState(false);
 
   const { user } = useSelector((state) => state.auth);
   const socket = getSocket();
@@ -35,6 +36,7 @@ const NewChat = () => {
       setShowChat(true);
       setIsMatched(true);
       setIsLoading(false);
+      setIsFindingNew(false);
       notification.play();
     };
      
@@ -73,6 +75,25 @@ const NewChat = () => {
       alert("Please enter a username.");
     }
   };
+
+  const findNewStranger = () => {
+    if (!room) return;
+
+    socket.emit("disconnect_chat", { room, username });
+
+    setRoom("");
+    setConnectedUser("");
+    setPartnerUser(null);
+    setBothLoggedIn(false);
+    setPartnerId(null);
+    setIsFindingNew(true);
+
+    socket.emit("find_partner", {
+      username,
+      userId: user?._id || null,
+      user: user || null,
+    });
+  };
  
    // Go back to home page function
    const goBackToHome = () => {
@@ -81,8 +102,9 @@ const NewChat = () => {
     setRoom("");
     setConnectedUser("");
     setPartnerUser(null)
-    setBothLoggedIn(false);   // ✅ reset
+    setBothLoggedIn(false);
     setPartnerId(null); 
+    setIsFindingNew(false);
     // setUsername(""); // Optional: clear username
     setIsUserInWaitingList(false);
   };
@@ -118,9 +140,8 @@ const NewChat = () => {
       </div>
       
       )}
-      {showChat && isMatched && (
-        <StrangerChat socket={socket} username={username} room={room} connectedUser={connectedUser}  bothLoggedIn={bothLoggedIn}   // ✅ NEW
-  partnerId={partnerId}  partner={partnerUser} goBackToHome={goBackToHome} />
+      {showChat && (isMatched || isFindingNew) && (
+        <StrangerChat socket={socket} username={username} room={room} connectedUser={connectedUser}  bothLoggedIn={bothLoggedIn} partnerId={partnerId}  partner={partnerUser} goBackToHome={goBackToHome} onFindNew={findNewStranger} isFindingNew={isFindingNew} />
        
       )}
     </>
