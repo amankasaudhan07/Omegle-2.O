@@ -164,17 +164,16 @@ io.on("connection",(socket)=>{
             console.log("message",messageForRealTime); 
     })
      
-    socket.on(START_TYPING, ({ members, chatId }) => {
-      // if (!socket.user) return;
-      const membersSockets = getSockets(members);
-      socket.to(membersSockets).emit(START_TYPING, { chatId });
+   socket.on(START_TYPING, ({ members, chatId, userId, name }) => {
+  const membersSockets = getSockets(members);
+  socket.to(membersSockets).emit(START_TYPING, { chatId, userId, name });
     });
-  
-    socket.on(STOP_TYPING, ({ members, chatId }) => {
-      // if (!socket.user) return;
+
+    socket.on(STOP_TYPING, ({ members, chatId, userId }) => {
       const membersSockets = getSockets(members);
-      socket.to(membersSockets).emit(STOP_TYPING, { chatId });
-    });
+      socket.to(membersSockets).emit(STOP_TYPING, { chatId, userId });
+    }); 
+
   
     socket.on(CHAT_JOINED, ({ userId, members }) => {
       // if (!socket.user) return;

@@ -441,7 +441,7 @@ const deleteChat = async (req, res) => {
 
         return res.status(200).json({
             success: true,
-            message: "Chat deleted successfully",
+            message: chat.groupChat ? "Group deleted successfully" : "Chat deleted successfully",
         });
     }
     catch (err) {

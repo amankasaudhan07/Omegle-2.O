@@ -37,7 +37,7 @@ const Chat = ({ chatId ,user}) => {
   const [page, setPage] = useState(1);
   const [fileMenuAnchor, setFileMenuAnchor] = useState(null);
   const [IamTyping, setIamTyping] = useState(false);
-  const [userTyping, setUserTyping] = useState(false);
+  const [typingUsers, setTypingUsers] = useState([]);
   const typingTimeout = useRef(null);
 
   const chatDetails = useChatDetailsQuery({ chatId, skip: !chatId });
@@ -69,12 +69,25 @@ const Chat = ({ chatId ,user}) => {
   const messageOnChange = (e) => {
     setMessage(e.target.value);
     if (!IamTyping) {
-      socket.emit(START_TYPING, { members, chatId });
+      // socket.emit(START_TYPING, { members, chatId });
+      socket.emit(START_TYPING, {
+        members,
+        chatId,
+        userId: user._id,
+        name: user.name,
+      });
+
       setIamTyping(true);
     }
     if (typingTimeout.current) clearTimeout(typingTimeout.current);
     typingTimeout.current = setTimeout(() => {
-      socket.emit(STOP_TYPING, { members, chatId });
+      // socket.emit(STOP_TYPING, { members, chatId });
+      socket.emit(STOP_TYPING, {
+        members,
+        chatId,
+        userId: user._id,
+      });
+
       setIamTyping(false);
     }, 2000);
   };
@@ -103,6 +116,8 @@ const Chat = ({ chatId ,user}) => {
   setMessages([]);        // clear real-time messages
   setOldMessages([]);     // clear old paginated messages
   setPage(1);             // reset pagination
+  setTypingUsers([]);
+
  }, [chatId]);
 
   useEffect(() => {
@@ -118,15 +133,25 @@ const Chat = ({ chatId ,user}) => {
     setMessages((prev) => [...prev, data.message]);
   }, [chatId]);
 
-  const startTypingListener = useCallback((data) => {
-    if (data.chatId !== chatId) return;
-    setUserTyping(true);
-  }, [chatId]);
+ const startTypingListener = useCallback((data) => {
+  if (data.chatId !== chatId) return;
 
-  const stopTypingListener = useCallback((data) => {
-    if (data.chatId !== chatId) return;
-    setUserTyping(false);
-  }, [chatId]);
+  setTypingUsers((prev) => {
+    const exists = prev.some((item) => item.userId === data.userId);
+    if (exists) return prev;
+
+    return [...prev, { userId: data.userId, name: data.name }];
+  });
+}, [chatId]);
+
+const stopTypingListener = useCallback((data) => {
+  if (data.chatId !== chatId) return;
+
+  setTypingUsers((prev) =>
+    prev.filter((item) => item.userId !== data.userId)
+  );
+}, [chatId]);
+
 
   useSocketEvents(socket, {
     [NEW_MESSAGE]: newMessagesListener,
@@ -147,7 +172,15 @@ const Chat = ({ chatId ,user}) => {
           {allMessages.map((i) => (
             <MessageComponent key={i._id} message={i} user={user} />
           ))}
-          {userTyping && <TypingLoader />}
+          {/* {userTyping && <TypingLoader />} */}
+          {typingUsers.length > 0 && (
+            <p className="text-sm text-gray-500 px-2">
+              {typingUsers.length === 1
+                ? `${typingUsers[0].name} is typing...`
+                : `${typingUsers.map((u) => u.name).join(", ")} are typing...`}
+            </p>
+          )}
+
           <div ref={bottomRef} />
         </div>
         <form className="flex items-center p-4 bg-white shadow-md" onSubmit={submitHandler}>

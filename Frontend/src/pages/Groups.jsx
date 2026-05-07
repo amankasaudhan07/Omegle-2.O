@@ -72,21 +72,24 @@ const Groups = () => {
 
   useErrors(errors);
 
-  useEffect(() => {
-    const groupData = groupDetails.data;
-    if (groupData) {
-      setGroupName(groupData.chat.name);
-      setGroupNameUpdatedValue(groupData.chat.name);
-      setMembers(groupData.chat.members);
-    }
+ useEffect(() => {
+  if (!chatId) {
+    setGroupName("");
+    setGroupNameUpdatedValue("");
+    setMembers([]);
+    setIsEdit(false);
+    return;
+  }
 
-    return () => {
-      setGroupName("");
-      setGroupNameUpdatedValue("");
-      setMembers([]);
-      setIsEdit(false);
-    };
-  }, [groupDetails.data]);
+  const groupData = groupDetails.data;
+
+  if (groupData) {
+    setGroupName(groupData.chat.name);
+    setGroupNameUpdatedValue(groupData.chat.name);
+    setMembers(groupData.chat.members);
+  }
+}, [chatId, groupDetails.data]);
+
 
   const navigateBack = () => {
     navigate("/friends");
@@ -115,6 +118,10 @@ const Groups = () => {
   const deleteHandler = () => {
     deleteGroup("Deleting Group...", chatId);
     closeConfirmDeleteHandler();
+    setGroupName("");
+    setGroupNameUpdatedValue("");
+    setMembers([]);
+    setIsEdit(false);
     navigate("/groups");
   };
 
