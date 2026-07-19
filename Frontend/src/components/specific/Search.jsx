@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useInputValidation } from "6pp";
-// import { SearchIcon } from '@heroicons/react/24/solid';
 import { Search as SearchIcon } from "@mui/icons-material";
 import { useAsyncMutation } from "../../hooks/hook";
 import {
@@ -30,83 +29,83 @@ const Search = () => {
 
   useEffect(() => {
     const timeOutId = setTimeout(() => {
+      setLoading(true);
       searchUser(search.value)
         .then(({ data }) => setUsers(data.users))
         .catch((e) => console.log(e))
-         .finally(() => setLoading(false));
+        .finally(() => setLoading(false));
     }, 1000);
     return () => {
       clearTimeout(timeOutId);
     };
   }, [search.value]);
 
-
   if (!isSearch) return null;
 
- return (
-  <div className="fixed inset-0 z-50 bg-gray-600 bg-opacity-50 flex items-center justify-center"
-     onClick={searchCloseHandler}
-  >
-    
-   <div
-      className="bg-white relative rounded-lg shadow-xl w-full max-w-md h-[500px] flex flex-col"
-      onClick={(e) => e.stopPropagation()}
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+      onClick={searchCloseHandler}
     >
-     <button 
-        onClick={searchCloseHandler}
-        className="absolute top-1 right-2 text-xl"
+      <div
+        className="relative flex h-[500px] w-full max-w-md flex-col rounded-2xl shadow-xl"
+        style={{
+          backgroundColor: "var(--surface)",
+          color: "var(--text)",
+          border: "1px solid var(--border)",
+        }}
+        onClick={(e) => e.stopPropagation()}
       >
-        ✕
-      </button>
-      {/* Content */}
-      <div className="p-6 overflow-hidden flex flex-col">
-      
-        <h2 className="text-2xl font-bold text-center mb-4">Find People</h2>
-
-        <div className="relative">
-          <input
-            type="text"
-            value={search.value}
-            onChange={search.changeHandler}
-            className="w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Search users..."
-          />
-          <SearchIcon className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
-        </div>
-
-        {/* Scrollable list */}
-        <ul className="mt-4 space-y-2 overflow-y-auto flex-1">
-          {loading ? (
-            <p className="text-center text-gray-500">Loading...</p>
-          ) : users.length > 0 ? (
-            users.map((user) => (
-              <UserItem
-                key={user._id}
-                user={user}
-                handler={addFriendHandler}
-                handlerIsLoading={isLoadingSendFriendRequest}
-              />
-            ))
-          ) : (
-            <p className="text-center text-gray-500">No users found</p>
-          )}
-        </ul>
-      </div>
-
-      {/* Footer (fixed)
-      <div className="bg-gray-100 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse rounded-b-lg">
         <button
-          type="button"
-          className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-500 text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm"
           onClick={searchCloseHandler}
+          className="absolute right-3 top-2 text-xl"
+          style={{ color: "var(--muted)" }}
         >
-          Close
+          x
         </button>
-      </div> */}
 
+        <div className="flex flex-1 flex-col overflow-hidden p-6">
+          <h2 className="mb-4 text-center text-2xl font-bold">Find People</h2>
+
+          <div className="relative">
+            <input
+              type="text"
+              value={search.value}
+              onChange={search.changeHandler}
+              className="w-full rounded-md border py-2 pl-10 pr-4 focus:outline-none focus:ring-2"
+              style={{
+                backgroundColor: "var(--surface-soft)",
+                borderColor: "var(--border)",
+                color: "var(--text)",
+              }}
+              placeholder="Search users..."
+            />
+            <SearchIcon
+              className="absolute left-3 top-2.5 h-5 w-5"
+              style={{ color: "var(--muted)" }}
+            />
+          </div>
+
+          <ul className="mt-4 flex-1 space-y-2 overflow-y-auto">
+            {loading ? (
+              <p className="app-muted text-center">Loading...</p>
+            ) : users.length > 0 ? (
+              users.map((user) => (
+                <UserItem
+                  key={user._id}
+                  user={user}
+                  handler={addFriendHandler}
+                  handlerIsLoading={isLoadingSendFriendRequest}
+                />
+              ))
+            ) : (
+              <p className="app-muted text-center">No users found</p>
+            )}
+          </ul>
+        </div>
+      </div>
     </div>
-  </div>
-);
+  );
 };
 
 export default Search;

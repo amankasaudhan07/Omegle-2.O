@@ -74,14 +74,14 @@ const AppLayout = (WrappedComponent) => {
     useSocketEvents(socket, eventHandlers);
 
     return (
-      <div className="flex flex-col h-screen">
+      <div className="flex flex-col h-screen app-shell">
         <Header />
         <DeleteChatMenu dispatch={dispatch} deleteMenuAnchor={deleteMenuAnchor} />
         
         {/* Mobile Drawer */}
         {isMobile && (
           <div className="fixed inset-0 z-50 bg-black bg-opacity-50" onClick={handleMobileClose}>
-            <div className="absolute left-0 top-0 h-full w-4/5 max-w-sm bg-white" onClick={(e) => e.stopPropagation()}>
+            <div className="absolute left-0 top-0 h-full w-4/5 max-w-sm" style={{ backgroundColor: "var(--surface)" }} onClick={(e) => e.stopPropagation()}>
               {isLoading ? (
                 <div className="animate-pulse bg-gray-300 h-full" />
               ) : (
@@ -99,7 +99,7 @@ const AppLayout = (WrappedComponent) => {
 
         <div className="flex flex-1 overflow-hidden">
           {/* Chat List - Hidden on mobile */}
-          <div className="hidden sm:block sm:w-1/3 md:w-1/4 border-r border-gray-200">
+          <div className="hidden sm:block sm:w-1/3 md:w-1/4 border-r" style={{ borderColor: "var(--border)", backgroundColor: "var(--surface)" }}>
             {isLoading ? (
               <div className="animate-pulse bg-gray-300 h-full" />
             ) : (
@@ -119,7 +119,7 @@ const AppLayout = (WrappedComponent) => {
           </div>
 
           {/* Profile - Hidden on mobile and small screens */}
-          <div className="hidden md:block md:w-1/3 lg:w-1/4 bg-gray-900 text-white p-8">
+          <div className="hidden md:block md:w-1/3 lg:w-1/4 p-8" style={{ backgroundColor: "var(--surface)", color: "var(--text)", borderLeft: "1px solid var(--border)" }}>
             <Profile user={user} />
           </div>
         </div>

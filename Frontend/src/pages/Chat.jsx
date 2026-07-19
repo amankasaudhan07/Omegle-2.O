@@ -14,6 +14,7 @@ import { removeNewMessagesAlert } from "../redux/reducers/chat";
 import { useNavigate } from "react-router-dom";
 import { TypingLoader } from "../components/layout/Loader";
 import { CHAT_JOINED, CHAT_LEAVED, NEW_MESSAGE, START_TYPING, STOP_TYPING } from "../constants/events";
+import { useTheme } from "../components/layout/ThemeProvider";
 
 
 
@@ -29,6 +30,7 @@ const Chat = ({ chatId ,user}) => {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { isDarkMode } = useTheme();
   const containerRef = useRef(null);
   const bottomRef = useRef(null);
 
@@ -167,14 +169,21 @@ const stopTypingListener = useCallback((data) => {
     <Skeleton />
   ) : (
     <Fragment >
-      <div className="flex flex-col h-full ">
-        <div ref={containerRef} className="flex-1 overflow-y-auto p-4 bg-gray-100 rounded-lg">
+      <div className="flex flex-col h-full app-shell">
+        <div
+          ref={containerRef}
+          className="flex-1 overflow-y-auto p-4 rounded-lg"
+          style={{
+            backgroundColor: "var(--surface)",
+            border: "1px solid var(--border)",
+          }}
+        >
           {allMessages.map((i) => (
             <MessageComponent key={i._id} message={i} user={user} />
           ))}
           {/* {userTyping && <TypingLoader />} */}
           {typingUsers.length > 0 && (
-            <p className="text-sm text-gray-500 px-2">
+            <p className="px-2 text-sm app-muted">
               {typingUsers.length === 1
                 ? `${typingUsers[0].name} is typing...`
                 : `${typingUsers.map((u) => u.name).join(", ")} are typing...`}
@@ -183,18 +192,34 @@ const stopTypingListener = useCallback((data) => {
 
           <div ref={bottomRef} />
         </div>
-        <form className="flex items-center p-4 bg-white shadow-md" onSubmit={submitHandler}>
+        <form
+          className="mt-3 flex items-center p-4 rounded-2xl"
+          style={{
+            backgroundColor: "var(--surface)",
+            border: "1px solid var(--border)",
+          }}
+          onSubmit={submitHandler}
+        >
           <IconButton className="text-gray-500" onClick={handleFileOpen}>
             <AttachFileIcon />
           </IconButton>
           <input
             type="text"
-            className="flex-1 p-2 border border-gray-300 rounded-lg mx-2 focus:outline-none focus:border-orange-500"
+            className="mx-2 flex-1 rounded-xl border p-2 outline-none"
+            style={{
+              backgroundColor: "var(--surface-soft)",
+              borderColor: "var(--border)",
+              color: "var(--text)",
+            }}
             placeholder="Type a message..."
             value={message}
             onChange={messageOnChange}
           />
-          <IconButton type="submit" className="bg-orange-500 text-white hover:bg-orange-600 rounded-full p-2">
+          <IconButton
+            type="submit"
+            className="rounded-full p-2"
+            style={{ backgroundColor: isDarkMode ? "#ffffff" : "#0f172a", color: isDarkMode ? "#0f172a" : "#ffffff" }}
+          >
             <SendIcon />
           </IconButton>
         </form>

@@ -3,50 +3,62 @@ import { useNavigate } from 'react-router-dom';
 import Img from '../assets/img3.jpg';
 import Navbar from '../components/specific/Navbar';
 import Footer from './Footer';
-
+import { useTheme } from '../components/layout/ThemeProvider';
 
 const MainPage = () => {
-    const navigate = useNavigate();
-    
-    return (
-        <>
-         <Navbar/>
-    
-    <div className="min-h-screen flex flex-col-reverse md:flex-row items-center justify-center md:justify-between bg-gray-100 dark:bg-gray-900 px-6 md:px-24 py-12">
-      
-      {/* Left Section */}
-      <div className="md:w-1/2 text-center md:text-left mb-8 md:mb-0">
-        <h1 className="text-4xl md:text-6xl font-bold text-gray-900 dark:text-white">
-          Talk to Strangers,
-        </h1>
-        <h2 className="text-2xl md:text-4xl font-semibold text-gray-800 dark:text-white mt-4">
-          Make friends!
-        </h2>
-        <p className="text-xl md:text-2xl  text-gray-800 dark:text-gray-300 mt-4">Unlock a world of connections – dive into random chats, discover new friendships, and engage with strangers across the globe like never before!</p>
-        <button 
-          className="mt-8 px-6 py-3 text-lg bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-md transition duration-300 ease-in-out"
-          onClick={() => { navigate('/newChat') }}
-        >
-          Chat With Strangers 
-        </button>
-        <button 
-          className="mt-8 ml-4 px-6 py-3 text-lg bg-red-600 hover:bg-red-700 text-white rounded-lg shadow-md transition duration-300 ease-in-out"
-          onClick={() => { navigate('/friends') }}
-        >
-         Chat With Your Friends 
-        </button>
+  const navigate = useNavigate();
+  const { isDarkMode } = useTheme();
+
+  return (
+    <>
+      <Navbar />
+
+      <div
+        className="min-h-screen flex flex-col-reverse items-center justify-center px-6 py-12 md:flex-row md:justify-between md:px-24"
+        style={{
+          backgroundColor: isDarkMode ? "#18212f" : "var(--bg)",
+          color: "var(--text)",
+        }}
+      >
+        <div className="mb-8 text-center md:mb-0 md:w-1/2 md:text-left">
+          <h1 className="text-4xl font-bold md:text-6xl">Talk to Strangers,</h1>
+          <h2 className="mt-4 text-2xl font-semibold md:text-4xl">Make friends!</h2>
+          <p className="mt-4 text-xl md:text-2xl app-muted">
+            Unlock a world of connections, discover new friendships, and engage
+            with strangers across the globe like never before.
+          </p>
+          <div className="mt-8 flex flex-col gap-4 sm:flex-row">
+            <button
+              className="rounded-2xl px-6 py-3 text-lg text-white shadow-md transition"
+              style={{ backgroundColor: "var(--brand)" }}
+              onClick={() => {
+                navigate('/newChat');
+              }}
+            >
+              Chat With Strangers
+            </button>
+            <button
+              className="rounded-2xl px-6 py-3 text-lg text-white shadow-md transition"
+              style={{ backgroundColor: isDarkMode ? "#374151" : "#0f172a" }}
+              onClick={() => {
+                navigate('/friends');
+              }}
+            >
+              Chat With Your Friends
+            </button>
+          </div>
+        </div>
+
+        <div className="md:w-1/2">
+          <img
+            src={Img}
+            alt="Talk to strangers"
+            className="w-full max-w-md rounded-[28px] shadow-lg md:ml-20"
+          />
+        </div>
       </div>
 
-      {/* Right Section */}
-      <div className="md:w-1/2">
-        <img 
-          src={Img} 
-          alt="Talk to strangers" 
-          className="w-3/4 h-1/6 rounded-lg shadow-lg ml-20"
-        />
-      </div>
-    </div>
-       <Footer/>
+      <Footer />
     </>
   );
 };

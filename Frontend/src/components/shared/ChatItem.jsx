@@ -3,6 +3,7 @@ import {Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Delete as DeleteIcon } from "@mui/icons-material";
 import AvatarCard from "./AvtarCard";
+import { useTheme } from "../layout/ThemeProvider";
 
 const ChatItem = ({
   avatar = [],
@@ -15,6 +16,7 @@ const ChatItem = ({
   index = 0,
   handleDeleteChat,
 }) => {
+  const { isDarkMode } = useTheme();
   return (
     <Link to={`/chat/${_id}`}  
     // onClick={(e) => {
@@ -25,9 +27,16 @@ const ChatItem = ({
         initial={{ opacity: 0, y: "-100%" }}
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 * index }}
-        className={`flex items-center gap-4 p-4 relative hover:bg-gray-100 transition-colors ${
-          sameSender ? "bg-gray-800 text-white" : "bg-white text-gray-900"
+        className={`flex items-center gap-4 p-4 relative transition-colors ${
+          sameSender
+            ? isDarkMode
+              ? "bg-slate-700 text-white"
+              : "bg-slate-900 text-white"
+            : isDarkMode
+            ? "bg-slate-800 text-slate-100 hover:bg-slate-700"
+            : "bg-white text-slate-900 hover:bg-slate-100"
         }`}
+        style={{ borderBottom: "1px solid var(--border)" }}
       >
         <AvatarCard avatar={avatar} />
         <div className="flex-grow">
@@ -45,7 +54,8 @@ const ChatItem = ({
 
         {/* Delete Icon for context menu action */}
         <DeleteIcon
-          className="absolute top-1/2 right-4 transform -translate-y-1/2 cursor-pointer text-gray-500 hover:text-red-500"
+          className="absolute top-1/2 right-4 transform -translate-y-1/2 cursor-pointer hover:text-red-500"
+          style={{ color: "var(--muted)" }}
           onClick={(e) => {
             e.preventDefault(); // Prevent navigation
             handleDeleteChat(e, _id, groupChat);

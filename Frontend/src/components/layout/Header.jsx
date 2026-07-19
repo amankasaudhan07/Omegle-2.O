@@ -18,6 +18,7 @@ import {
 } from '../../redux/reducers/misc';
 import logo from '../../assets/logo.jpg'
 import { Badge } from "@mui/material";
+import { useTheme } from './ThemeProvider';
 
 const SearchDialog = lazy(() => import('../specific/Search'));
 const NotificationDialog = lazy(() => import('../specific/Notifications'));
@@ -26,6 +27,7 @@ const NewGroupDialog = lazy(() => import('../specific/NewGroup'));
 const Header = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { isDarkMode, toggleTheme } = useTheme();
   
   const navigateBack = () => {
     navigate("/");
@@ -48,7 +50,14 @@ const Header = () => {
   
   return (
     <>
-      <header className="bg-gray-900 text-white">
+      <header
+        className="border-b"
+        style={{
+          backgroundColor: isDarkMode ? "#111827" : "var(--surface)",
+          color: isDarkMode ? "#f8fafc" : "var(--text)",
+          borderColor: isDarkMode ? "#1f2937" : "var(--border)",
+        }}
+      >
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16 mx-auto max-w-7xl ">
             <div className="flex items-center">
@@ -62,13 +71,25 @@ const Header = () => {
                   />
                 </div>
               <button 
-                className="sm:hidden p-2 rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-white"
+                className="sm:hidden p-2 rounded-md focus:outline-none"
                 onClick={handleMobile}
+                style={{ backgroundColor: "var(--surface-soft)" }}
               >
                 <Menu className="h-6 w-6" />
               </button>
             </div>
             <div className="flex items-center space-x-4">
+              <button
+                className="hidden sm:block px-4 py-2 rounded-full text-sm font-semibold"
+                onClick={toggleTheme}
+                style={{
+                  backgroundColor: "var(--surface-soft)",
+                  color: "var(--text)",
+                  border: "1px solid var(--border)",
+                }}
+              >
+                {isDarkMode ? "Light" : "Dark"}
+              </button>
               <IconBtn title="Search" icon={<Search />} onClick={openSearch} />
               <IconBtn title="New Group" icon={<UserPlus />} onClick={openNewGroup} />
               <IconBtn title="Manage Groups" icon={<Users />} onClick={navigateToGroup} />
@@ -125,9 +146,10 @@ const Header = () => {
 const IconBtn = ({ title, icon, onClick, badge }) => {
   return (
     <button
-      className="p-2 rounded-full hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-white relative"
+      className="p-2 rounded-full relative"
       onClick={onClick}
       title={title}
+      style={{ backgroundColor: "var(--surface-soft)", color: "var(--text)" }}
     >
       {icon}
       {badge && (

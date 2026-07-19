@@ -6,7 +6,6 @@ import { Camera } from 'lucide-react';
 import { server } from '../constants/config';
 import { userExists } from '../redux/reducers/auth';
 import Navbar from '../components/specific/Navbar';
-// import { usernameValidator } from '../utils/validators';
 
 const useInputValidation = (initialValue, validator) => {
   const [value, setValue] = useState(initialValue);
@@ -104,91 +103,105 @@ const Login = () => {
 
   return (
     <>
-     <Navbar/>
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-gray-900 to-gray-600">
-      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-        <h2 className="text-2xl font-bold mb-6 text-center">
-          {isLogin ? 'Login' : 'Sign Up'}
-        </h2>
-        <form onSubmit={isLogin ? handleLogin : handleSignUp}>
-          {!isLogin && (
-            <>
-              <div className="mb-4 relative w-32 h-32 mx-auto">
-                <img
-                  src={avatar.preview || '/api/placeholder/128/128'}
-                  // alt="avatar"
-                  className="border-4  w-full h-full rounded-full object-cover"
-                />
-                <label className="absolute bottom-0 right-0 bg-gray-800 p-2 rounded-full cursor-pointer">
-                  <Camera className="w-5 h-5 text-white" />
-                  <input
-                    type="file"
-                    className="hidden"
-                    onChange={avatar.changeHandler}
-                    accept="image/*"
-                  />
-                </label>
-              </div>
-              {avatar.error && (
-                <p className="text-red-500 text-xs mt-1">{avatar.error}</p>
-              )}
-              <input
-                className="w-full p-2 border rounded mb-4"
-                type="text"
-                placeholder="Name"
-                value={name.value}
-                onChange={name.changeHandler}
-                required
-              />
-              <input
-                className="w-full p-2 border rounded mb-4"
-                type="text"
-                placeholder="Bio"
-                value={bio.value}
-                onChange={bio.changeHandler}
-                required
-              />
-            </>
-          )}
-          <input
-            className="w-full p-2 border rounded mb-4"
-            type="text"
-            placeholder="Username"
-            value={username.value}
-            onChange={username.changeHandler}
-            required
-          />
-          {username.error && (
-            <p className="text-red-500 text-xs mt-1 mb-4">{username.error}</p>
-          )}
-          <input
-            className="w-full p-2 border rounded mb-6"
-            type="password"
-            placeholder="Password"
-            value={password.value}
-            onChange={password.changeHandler}
-            required
-          />
-          <button
-            className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600 transition duration-300 disabled:opacity-50"
-            type="submit"
-            disabled={isLoading}
-          >
+      <Navbar />
+      <div
+        className="min-h-screen flex items-center justify-center px-4"
+        style={{ backgroundColor: "var(--bg)" }}
+      >
+        <div
+          className="w-full max-w-md rounded-[28px] border p-8 shadow-md"
+          style={{ backgroundColor: "var(--surface)", borderColor: "var(--border)", color: "var(--text)" }}
+        >
+          <h2 className="mb-6 text-center text-2xl font-bold">
             {isLogin ? 'Login' : 'Sign Up'}
-          </button>
-        </form>
-        <div className="mt-4 text-center">
-          <button
-            className="text-blue-500 hover:underline"
-            onClick={toggleLogin}
-            disabled={isLoading}
-          >
-            {isLogin ? 'Sign Up Instead' : 'Login Instead'}
-          </button>
+          </h2>
+          <form onSubmit={isLogin ? handleLogin : handleSignUp}>
+            {!isLogin && (
+              <>
+                <div className="relative mx-auto mb-4 h-32 w-32">
+                  <img
+                    src={avatar.preview || '/api/placeholder/128/128'}
+                    className="h-full w-full rounded-full border-4 object-cover"
+                    style={{ borderColor: "var(--border)" }}
+                  />
+                  <label
+                    className="absolute bottom-0 right-0 cursor-pointer rounded-full p-2"
+                    style={{ backgroundColor: "var(--accent)" }}
+                  >
+                    <Camera className="h-5 w-5 text-white" />
+                    <input
+                      type="file"
+                      className="hidden"
+                      onChange={avatar.changeHandler}
+                      accept="image/*"
+                    />
+                  </label>
+                </div>
+                {avatar.error && (
+                  <p className="mt-1 text-xs text-red-500">{avatar.error}</p>
+                )}
+                <input
+                  className="mb-4 w-full rounded-xl border p-3"
+                  style={{ backgroundColor: "var(--surface)", borderColor: "var(--border)", color: "var(--text)" }}
+                  type="text"
+                  placeholder="Name"
+                  value={name.value}
+                  onChange={name.changeHandler}
+                  required
+                />
+                <input
+                  className="mb-4 w-full rounded-xl border p-3"
+                  style={{ backgroundColor: "var(--surface)", borderColor: "var(--border)", color: "var(--text)" }}
+                  type="text"
+                  placeholder="Bio"
+                  value={bio.value}
+                  onChange={bio.changeHandler}
+                  required
+                />
+              </>
+            )}
+            <input
+              className="mb-4 w-full rounded-xl border p-3"
+              style={{ backgroundColor: "var(--surface)", borderColor: "var(--border)", color: "var(--text)" }}
+              type="text"
+              placeholder="Username"
+              value={username.value}
+              onChange={username.changeHandler}
+              required
+            />
+            {username.error && (
+              <p className="mb-4 mt-1 text-xs text-red-500">{username.error}</p>
+            )}
+            <input
+              className="mb-6 w-full rounded-xl border p-3"
+              style={{ backgroundColor: "var(--surface)", borderColor: "var(--border)", color: "var(--text)" }}
+              type="password"
+              placeholder="Password"
+              value={password.value}
+              onChange={password.changeHandler}
+              required
+            />
+            <button
+              className="w-full rounded-2xl p-3 text-white transition duration-300 disabled:opacity-50"
+              style={{ backgroundColor: "var(--brand)" }}
+              type="submit"
+              disabled={isLoading}
+            >
+              {isLogin ? 'Login' : 'Sign Up'}
+            </button>
+          </form>
+          <div className="mt-4 text-center">
+            <button
+              className="font-medium"
+              style={{ color: "var(--brand)" }}
+              onClick={toggleLogin}
+              disabled={isLoading}
+            >
+              {isLogin ? 'Sign Up Instead' : 'Login Instead'}
+            </button>
+          </div>
         </div>
       </div>
-    </div>
-
     </>
   );
 };

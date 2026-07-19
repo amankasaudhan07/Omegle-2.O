@@ -10,7 +10,6 @@ import { setIsNewGroup } from "../../redux/reducers/misc";
 import { Dialog } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import toast from "react-hot-toast";
-import Header from "../layout/Header"
 
 const NewGroup = () => {
   const { isNewGroup } = useSelector((state) => state.misc);
@@ -44,33 +43,40 @@ const NewGroup = () => {
 
   if (!isNewGroup) return null;
 
-  return ( 
+  return (
     <Dialog open={isNewGroup} onClose={close} className="fixed inset-0 z-50">
-      <div className="flex items-center justify-center min-h-screen bg-black/30 p-4">
-        
-        <div className="w-full max-w-md bg-white rounded-xl p-5 relative">
-          
-          {/* Header */}
-          <div className="flex justify-between items-center mb-4">
+      <div className="flex min-h-screen items-center justify-center bg-black/30 p-4">
+        <div
+          className="relative w-full max-w-md rounded-xl p-5"
+          style={{
+            backgroundColor: "var(--surface)",
+            color: "var(--text)",
+            border: "1px solid var(--border)",
+          }}
+        >
+          <div className="mb-4 flex items-center justify-between">
             <h2 className="text-lg font-semibold">New Group</h2>
             <button onClick={close}>
-              <XMarkIcon className="w-5 h-5 text-gray-500" />
+              <XMarkIcon className="h-5 w-5" style={{ color: "var(--muted)" }} />
             </button>
           </div>
 
-          {/* Input */}
           <input
             type="text"
             placeholder="Group Name"
             value={groupName.value}
             onChange={groupName.changeHandler}
-            className="w-full mb-4 px-3 py-2 border rounded-md"
+            className="mb-4 w-full rounded-md border px-3 py-2"
+            style={{
+              backgroundColor: "var(--surface-soft)",
+              borderColor: "var(--border)",
+              color: "var(--text)",
+            }}
           />
 
-          {/* Members */}
-          <div className="max-h-60 overflow-y-auto space-y-2 mb-4">
+          <div className="mb-4 max-h-60 space-y-2 overflow-y-auto">
             {isLoading ? (
-              <p className="text-center text-gray-500">Loading...</p>
+              <p className="app-muted text-center">Loading...</p>
             ) : (
               data?.friends?.map((user) => (
                 <UserItem
@@ -83,41 +89,44 @@ const NewGroup = () => {
             )}
           </div>
 
-          {/* Buttons */}
           <div className="flex justify-end gap-2">
-            <button onClick={close} className="px-4 py-2 bg-gray-200 rounded">
+            <button
+              onClick={close}
+              className="rounded px-4 py-2"
+              style={{ backgroundColor: "var(--surface-strong)", color: "var(--text)" }}
+            >
               Cancel
             </button>
             <button
               onClick={handleSubmit}
               disabled={creating}
-              className="px-4 py-2 bg-blue-500 text-white rounded"
+              className="rounded bg-blue-500 px-4 py-2 text-white"
             >
               {creating ? "Creating..." : "Create"}
             </button>
           </div>
-
         </div>
       </div>
     </Dialog>
-   
   );
 };
 
 const UserItem = ({ user, selected, onClick }) => (
   <div
     onClick={onClick}
-    className={`flex items-center gap-3 p-2 rounded cursor-pointer ${
-      selected ? "bg-blue-100" : "hover:bg-gray-100"
-    }`}
+    className="flex cursor-pointer items-center gap-3 rounded p-2"
+    style={{
+      backgroundColor: selected ? "var(--surface-strong)" : "transparent",
+      color: "var(--text)",
+    }}
   >
     <img
       src={user.avatar || "/placeholder-avatar.png"}
       alt={user.name}
-      className="w-10 h-10 rounded-full"
+      className="h-10 w-10 rounded-full"
     />
     <span className="flex-1 text-sm">{user.name}</span>
-    {selected && <span className="text-blue-500">✔</span>}
+    {selected && <span className="text-blue-500">+</span>}
   </div>
 );
 

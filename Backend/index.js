@@ -205,6 +205,10 @@ const updateWaitingUsers = () => {
 socket.on("find_partner", ({ username, userId, user }) => {
   console.log(`User ${username} ${socket.id} userId: ${userId}`);
 
+  waitingUsers = waitingUsers.filter(
+    (waitingUser) => waitingUser.partnerSocketId !== socket.id
+  );
+
   if (waitingUsers.length > 0) {
     const { partnerSocketId, partnerUsername, partnerUserId, partnerUser } =
       waitingUsers.pop();
@@ -213,9 +217,11 @@ socket.on("find_partner", ({ username, userId, user }) => {
       const roomID = `${socket.id}-${partnerSocketId}`;
 
       socket.join(roomID);
+      socket.data.strangerRoom = roomID;
 
       const partnerSocket = io.sockets.sockets.get(partnerSocketId);
       partnerSocket?.join(roomID);
+      if (partnerSocket) partnerSocket.data.strangerRoom = roomID;
 
       const bothLoggedIn = !!userId && !!partnerUserId;
 
@@ -249,6 +255,14 @@ socket.on("find_partner", ({ username, userId, user }) => {
   }
 });
 
+socket.on("cancel_find_partner", ({ username }) => {
+  waitingUsers = waitingUsers.filter(
+    (waitingUser) => waitingUser.partnerSocketId !== socket.id
+  );
+  updateWaitingUsers();
+  console.log(`User ${username || socket.id} cancelled stranger search`);
+});
+
 socket.on("send_message", (data) => {
   io.to(data.room).emit("receive_message", data);
 });
@@ -258,9 +272,23 @@ socket.on("send_image", (data) => {
 });
 
 socket.on("disconnect_chat", ({ room, username }) => {
+  waitingUsers = waitingUsers.filter(
+    (waitingUser) => waitingUser.partnerSocketId !== socket.id
+  );
   socket.leave(room);
+  socket.data.strangerRoom = null;
   socket.to(room).emit("partner_disconnected");
+  updateWaitingUsers();
   console.log(`User ${username} has disconnected from room ${room}`);
+});
+
+socket.on("disconnecting", () => {
+  const room = socket.data.strangerRoom;
+
+  if (room) {
+    socket.to(room).emit("partner_disconnected");
+    socket.data.strangerRoom = null;
+  }
 });
 
 
