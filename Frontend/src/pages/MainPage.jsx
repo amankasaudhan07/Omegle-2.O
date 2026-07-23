@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import Img from '../assets/img3.jpg';
+import Img from '../assets/img3.png';
 import Navbar from '../components/specific/Navbar';
 import Footer from './Footer';
 import { useTheme } from '../components/layout/ThemeProvider';
@@ -15,10 +15,7 @@ const MainPage = () => {
 
       <div
         className="min-h-screen flex flex-col-reverse items-center justify-center px-6 py-12 md:flex-row md:justify-between md:px-24"
-        style={{
-          backgroundColor: isDarkMode ? "#18212f" : "var(--bg)",
-          color: "var(--text)",
-        }}
+         style={{ backgroundColor: "var(--bg)", color: "var(--text)" }}
       >
         <div className="mb-8 text-center md:mb-0 md:w-1/2 md:text-left">
           <h1 className="text-4xl font-bold md:text-6xl">Talk to Strangers,</h1>
@@ -49,11 +46,11 @@ const MainPage = () => {
           </div>
         </div>
 
-        <div className="md:w-1/2">
+        <div className="">
           <img
             src={Img}
             alt="Talk to strangers"
-            className="w-full max-w-md rounded-[28px] shadow-lg md:ml-20"
+            // className="w-full max-w-md rounded-[28px] shadow-lg md:ml-20"
           />
         </div>
       </div>

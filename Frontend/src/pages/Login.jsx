@@ -6,6 +6,7 @@ import { Camera } from 'lucide-react';
 import { server } from '../constants/config';
 import { userExists } from '../redux/reducers/auth';
 import Navbar from '../components/specific/Navbar';
+import { useTheme } from '../components/layout/ThemeProvider';
 
 const useInputValidation = (initialValue, validator) => {
   const [value, setValue] = useState(initialValue);
@@ -52,6 +53,8 @@ const Login = () => {
   const username = useInputValidation('');
   const password = useInputValidation('');
   const avatar = useFileHandler("single");
+
+  const { isDarkMode } = useTheme();
 
   const toggleLogin = () => setIsLogin((prev) => !prev);
 
@@ -128,7 +131,10 @@ const Login = () => {
                     className="absolute bottom-0 right-0 cursor-pointer rounded-full p-2"
                     style={{ backgroundColor: "var(--accent)" }}
                   >
-                    <Camera className="h-5 w-5 text-white" />
+                   <Camera
+                      className="h-5 w-5"
+                      style={{ color: isDarkMode ? "black" : "white" }}
+                    />
                     <input
                       type="file"
                       className="hidden"

@@ -60,38 +60,85 @@ const FileMenu = ({ chatId }) => {
     { type: 'file', icon: Upload, label: 'File', accept: '*' },
   ];
 
-  return (
-    <div className={`fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 ${isFileMenu ? 'block' : 'hidden'}`}>
-      <div className="bg-white rounded-lg shadow-lg p-4 sm:max-w-[425px] w-full">
-        <h2 className="text-lg font-semibold">Upload Files</h2>
-        <p className="text-sm text-gray-600 mb-4">Choose a file type to upload. You can upload up to 5 files at a time.</p>
-        <div className="grid grid-cols-2 gap-4">
-          {fileTypes.map(({ type, icon: Icon, label, accept }) => (
-            <div key={type} className="flex flex-col items-center">
-              <button
-                onClick={() => selectFile(type)}
-                className="w-full p-4 text-center bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
-              >
-                <Icon className="mx-auto mb-2" size={24} />
-                <span>{label}</span>
-              </button>
-              <input
-                type="file"
-                multiple
-                accept={accept}
-                className="hidden"
-                onChange={(e) => fileChangeHandler(e, `${label}s`)}
-                ref={fileRefs[type]}
+ return (
+  <div
+    className={`fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm transition-all duration-300 ${
+      isFileMenu ? "flex" : "hidden"
+    }`}
+  >
+    <div
+      className="w-full max-w-[425px] rounded-2xl p-6 shadow-2xl transition-all duration-300"
+      style={{
+        backgroundColor: "var(--surface)",
+        color: "var(--text)",
+        border: "1px solid var(--border)",
+      }}
+    >
+      <h2
+        className="text-xl font-bold mb-2"
+        style={{ color: "var(--text)" }}
+      >
+        Upload Files
+      </h2>
+
+      <p
+        className="text-sm mb-6"
+        style={{
+          color: "var(--text)",
+          opacity: 0.7,
+        }}
+      >
+        Choose a file type to upload. You can upload up to 5 files at a time.
+      </p>
+
+      <div className="grid grid-cols-2 gap-4">
+        {fileTypes.map(({ type, icon: Icon, label, accept }) => (
+          <div key={type}>
+            <button
+              onClick={() => selectFile(type)}
+              className="w-full rounded-xl p-4 transition-all duration-300 hover:scale-105"
+              style={{
+                backgroundColor: "var(--bg)",
+                color: "var(--text)",
+                border: "1px solid var(--border)",
+              }}
+            >
+              <Icon
+                className="mx-auto mb-2"
+                size={26}
+                style={{ color: "var(--text)" }}
               />
-            </div>
-          ))}
-        </div>
-        <div className="flex justify-end mt-4">
-          <button onClick={closeFileMenu} className="px-4 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition-colors">Cancel</button>
-        </div>
+
+              <span className="font-medium">{label}</span>
+            </button>
+
+            <input
+              type="file"
+              multiple
+              accept={accept}
+              className="hidden"
+              onChange={(e) => fileChangeHandler(e, `${label}s`)}
+              ref={fileRefs[type]}
+            />
+          </div>
+        ))}
+      </div>
+
+      <div className="flex justify-end mt-6">
+        <button
+          onClick={closeFileMenu}
+          className="px-5 py-2 rounded-lg font-medium transition-all duration-300 hover:opacity-90"
+          style={{
+            backgroundColor: "var(--border)",
+            color: "var(--text)",
+          }}
+        >
+          Cancel
+        </button>
       </div>
     </div>
-  );
+  </div>
+);
 };
 
 export default FileMenu;

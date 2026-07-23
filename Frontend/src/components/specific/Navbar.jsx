@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import toast from 'react-hot-toast';
 import axios from 'axios';
 import { server } from '../../constants/config';
-import logo from '../../assets/logo.jpg';
+import logo from '../../assets/logo.png';
 import { useTheme } from '../layout/ThemeProvider';
 
 

@@ -16,7 +16,7 @@ import {
   setIsNotification,
   setIsSearch,
 } from '../../redux/reducers/misc';
-import logo from '../../assets/logo.jpg'
+import logo from '../../assets/logo.png'
 import { Badge } from "@mui/material";
 import { useTheme } from './ThemeProvider';
 
