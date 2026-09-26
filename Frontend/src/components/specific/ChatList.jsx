@@ -13,10 +13,12 @@ const ChatList = ({
     },
   ],
   handleDeleteChat,
+  onChatSelect,
+  className = "",
 }) => {
   return (
     <div
-      className={`flex flex-col overflow-auto`}
+      className={`flex min-h-0 flex-col overflow-y-auto overscroll-contain ${className}`}
       style={{ width: w, height: "100%", backgroundColor: "var(--surface)" }}
     >
       {chats?.map((data, index) => {
@@ -42,6 +44,7 @@ const ChatList = ({
             groupChat={groupChat}
             sameSender={chatId === _id}
             handleDeleteChat={handleDeleteChat}
+            onClick={onChatSelect}
           />
         );
       })}

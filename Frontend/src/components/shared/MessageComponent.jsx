@@ -13,9 +13,9 @@ const MessageComponent = ({ message, user }) => {
     <div
       initial={{ opacity: 0, x: sameSender ? "100%" : "-100%" }}
       whileInView={{ opacity: 1, x: 0 }}
-      className={`flex flex-col ${
+      className={`flex w-full min-w-0 flex-col ${
         sameSender ? "items-end" : "items-start"
-      } w-full p-2 overflow-x-hidden`}
+      } overflow-x-hidden px-1 py-1.5 sm:p-2`}
     >
       {!sameSender && (
         <p className="text-lightBlue-500 font-semibold text-sm">
@@ -24,7 +24,7 @@ const MessageComponent = ({ message, user }) => {
       )}
 
       <div
-        className={`max-w-xs md:max-w-md lg:max-w-lg break-words ${
+        className={`max-w-[88%] break-words [overflow-wrap:anywhere] sm:max-w-md lg:max-w-lg ${
           attachments.length > 0
             ? ""
             : sameSender

@@ -15,10 +15,11 @@ const ChatItem = ({
   newMessageAlert,
   index = 0,
   handleDeleteChat,
+  onClick,
 }) => {
   const { isDarkMode } = useTheme();
   return (
-    <Link to={`/chat/${_id}`}  
+    <Link to={`/chat/${_id}`} onClick={onClick}
     // onClick={(e) => {
     //   if (chatId === _id) e.preventDefault();
     // }} 
@@ -27,7 +28,7 @@ const ChatItem = ({
         initial={{ opacity: 0, y: "-100%" }}
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 * index }}
-        className={`flex items-center gap-4 p-4 relative transition-colors ${
+        className={`relative flex items-center gap-3 p-3 transition-colors sm:gap-4 sm:p-4 ${
           sameSender
             ? isDarkMode
               ? "bg-slate-700 text-white"
@@ -39,17 +40,17 @@ const ChatItem = ({
         style={{ borderBottom: "1px solid var(--border)" }}
       >
         <AvatarCard avatar={avatar} />
-        <div className="flex-grow">
-          <h3 className="text-lg font-semibold">{name}</h3>
+        <div className="min-w-0 flex-1 pr-10">
+          <h3 className="truncate text-base font-semibold sm:text-lg">{name}</h3>
           {newMessageAlert && (
-            <p className="text-sm font-medium text-blue-500">
+            <p className="truncate text-xs font-medium text-blue-500 sm:text-sm">
               {newMessageAlert.count} New Message
               {newMessageAlert.count > 1 ? "s" : ""}
             </p>
           )}
         </div>
         {isOnline && (
-          <div className="absolute top-1/2 right-12 transform -translate-y-1/2 w-3 h-3 bg-green-500 rounded-full" />
+          <div className="absolute right-11 top-1/2 h-2.5 w-2.5 -translate-y-1/2 rounded-full bg-green-500 ring-2 ring-white dark:ring-slate-800 sm:right-12 sm:h-3 sm:w-3" />
         )}
 
         {/* Delete Icon for context menu action */}

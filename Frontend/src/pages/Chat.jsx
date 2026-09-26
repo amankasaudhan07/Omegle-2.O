@@ -63,7 +63,11 @@ const Chat = ({ chatId ,user}) => {
   ];
   
   // console.log("aman",chatDetails);
-  const members = chatDetails?.data?.chat?.members;
+  const chat = chatDetails?.data?.chat;
+  const members = chat?.members;
+  const conversationName = chat?.groupChat
+    ? chat?.name
+    : members?.find((member) => member?._id !== user?._id)?.name;
 //   console.log("members ->", members);
 // console.log("members type ->", Array.isArray(members));
 // console.log("first member ->", members?.[0]);
@@ -169,10 +173,19 @@ const stopTypingListener = useCallback((data) => {
     <Skeleton />
   ) : (
     <Fragment >
-      <div className="flex flex-col h-full app-shell">
+      <div className="flex h-full min-h-0 min-w-0 flex-col gap-2 app-shell sm:gap-3">
+        <div className="flex shrink-0 items-center gap-3 rounded-2xl border px-3 py-2 sm:px-4" style={{ backgroundColor: "var(--surface)", borderColor: "var(--border)" }}>
+          <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-sm font-semibold text-white sm:h-10 sm:w-10" style={{ backgroundColor: "var(--brand)" }}>
+            {(conversationName || "C").slice(0, 1).toUpperCase()}
+          </div>
+          <div className="min-w-0">
+            <p className="truncate text-sm font-semibold sm:text-base" style={{ color: "var(--text)" }}>{conversationName || "Conversation"}</p>
+            <p className="text-xs app-muted">Your messages</p>
+          </div>
+        </div>
         <div
           ref={containerRef}
-          className="flex-1 overflow-y-auto p-4 rounded-lg"
+          className="min-h-0 min-w-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain rounded-2xl p-2 sm:p-4"
           style={{
             backgroundColor: "var(--surface)",
             border: "1px solid var(--border)",
@@ -193,19 +206,19 @@ const stopTypingListener = useCallback((data) => {
           <div ref={bottomRef} />
         </div>
         <form
-          className="mt-3 flex items-center p-4 rounded-2xl"
+          className="flex shrink-0 items-center gap-1 rounded-2xl p-2 sm:gap-2 sm:p-3"
           style={{
             backgroundColor: "var(--surface)",
             border: "1px solid var(--border)",
           }}
           onSubmit={submitHandler}
         >
-          <IconButton className="text-gray-500" onClick={handleFileOpen}>
+          <IconButton size="small" aria-label="Attach file" className="shrink-0 text-gray-500" onClick={handleFileOpen}>
             <AttachFileIcon />
           </IconButton>
           <input
             type="text"
-            className="mx-2 flex-1 rounded-xl border p-2 outline-none"
+            className="min-w-0 flex-1 rounded-xl border px-3 py-2 text-sm outline-none sm:text-base"
             style={{
               backgroundColor: "var(--surface-soft)",
               borderColor: "var(--border)",
@@ -216,8 +229,10 @@ const stopTypingListener = useCallback((data) => {
             onChange={messageOnChange}
           />
           <IconButton
+            size="small"
+            aria-label="Send message"
             type="submit"
-            className="rounded-full p-2"
+            className="shrink-0 rounded-full p-2"
             style={{ backgroundColor: isDarkMode ? "#ffffff" : "#0f172a", color: isDarkMode ? "#0f172a" : "#ffffff" }}
           >
             <SendIcon />
