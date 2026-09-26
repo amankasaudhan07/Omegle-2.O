@@ -7,7 +7,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { userExists, userNotExists } from "./redux/reducers/auth";
 import { Toaster } from "react-hot-toast";
 import { SocketProvider } from "./socket";
-import { LayoutLoader } from "./components/layout/Loader";
 import NewChat from "./pages/NewChat";
 import About from "./pages/About";
 import Support from "./pages/Support";
@@ -46,11 +45,9 @@ const App = () => {
       .catch((err) => dispatch(userNotExists()));
   }, [dispatch]);
 
-  return loader ? (
-    <LayoutLoader />
-  ) : (
+  return loader ? null : (
     <BrowserRouter>
-      <Suspense fallback={<LayoutLoader />}>
+      <Suspense fallback={null}>
         
         <Routes>
           <Route
