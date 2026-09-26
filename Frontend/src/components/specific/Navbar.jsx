@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { FaBars, FaTimes } from 'react-icons/fa';
+import { FaBars, FaMoon, FaSun, FaTimes } from 'react-icons/fa';
 import { Link, useNavigate } from 'react-router-dom';
 import { userNotExists } from '../../redux/reducers/auth';
 import { useDispatch, useSelector } from 'react-redux';
@@ -23,9 +23,7 @@ const Navbar = () => {
 
   const navigate = useNavigate();
 
-  const handleNavToggle = () => {
-    setNavOpen(!navOpen);
-  };
+  const handleNavToggle = () => setNavOpen((open) => !open);
 
   const logoutHandler = async () => {
       try {
@@ -60,7 +58,7 @@ const Navbar = () => {
 
   return (
     <nav
-      className="w-full border-b"
+      className="sticky top-0 z-50 w-full border-b"
       style={{
         backgroundColor: isDarkMode ? "#111827" : "var(--surface)",
         color: isDarkMode ? "#f8fafc" : "var(--text)",
@@ -68,14 +66,14 @@ const Navbar = () => {
       }}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex h-16 items-center justify-between">
 
           {/* Left: Logo / Icon */}
           <div className="flex-shrink-0">
             <img
               src={logo}
               alt="Logo"
-              className="h-16 w-44 " // Adjust the height as needed
+              className="h-12 w-36 object-contain sm:h-14 sm:w-40"
             />
           </div>
           {/* Center: Menu */}
@@ -186,18 +184,33 @@ const Navbar = () => {
 
       {/* Mobile Menu */}
       {navOpen && (
-        <div className="md:hidden" style={{ backgroundColor: "var(--surface)", color: "var(--text)" }}>
-          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+        <div className="absolute inset-x-0 top-full z-50 border-b shadow-xl md:hidden" style={{ backgroundColor: "var(--surface)", color: "var(--text)", borderColor: "var(--border)" }}>
+          <div className="flex flex-col gap-1 px-2 py-3 sm:px-3">
+            <Link to="/" onClick={() => setNavOpen(false)} className="block rounded-md px-3 py-2 text-base font-medium" style={{ backgroundColor: "var(--surface-soft)" }}>Home</Link>
+            <Link to="/about" onClick={() => setNavOpen(false)} className="block rounded-md px-3 py-2 text-base font-medium" style={{ backgroundColor: "var(--surface-soft)" }}>About</Link>
+            <Link to="/support" onClick={() => setNavOpen(false)} className="block rounded-md px-3 py-2 text-base font-medium" style={{ backgroundColor: "var(--surface-soft)" }}>Support</Link>
             <button
               onClick={toggleTheme}
-              className="block w-full rounded-xl px-3 py-2 text-left text-base font-medium"
-              style={{ backgroundColor: "var(--surface-soft)" }}
+              className="flex w-full items-center justify-between rounded-xl border px-4 py-3 text-left text-sm font-semibold transition-colors"
+              style={{
+                backgroundColor: "var(--surface-soft)",
+                borderColor: "var(--border)",
+                color: "var(--text)",
+              }}
             >
-              {isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
+              <span className="flex items-center gap-3">
+                {isDarkMode ? <FaSun aria-hidden="true" /> : <FaMoon aria-hidden="true" />}
+                {isDarkMode ? "Light Mode" : "Dark Mode"}
+              </span>
+              <span
+                aria-hidden="true"
+                className={`relative h-6 w-11 rounded-full transition-colors ${isDarkMode ? "bg-indigo-500" : "bg-slate-300"}`}
+              >
+                <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${isDarkMode ? "translate-x-5" : "translate-x-0.5"}`} />
+              </span>
             </button>
         
-            {user ? (
-              <>
+            {user && (
                 <div className="px-3 py-3 border-b flex items-center gap-3" style={{ borderColor: "var(--border)" }}>
                   <img
                     src={user.avatar?.url || "/default.png"}
@@ -211,28 +224,16 @@ const Navbar = () => {
                     <p className="text-xs app-muted">{user.bio || "No bio added yet"}</p>
                   </div>
                 </div>
-
-                
-              </>
-            ) : (
-
-              <>
-                <Link to="/login" className="block px-3 py-2 rounded-md text-base font-medium" style={{ backgroundColor: "var(--surface-soft)" }}>Login</Link>
-               
-              </>
             )}
-            <Link to="/" className="block px-3 py-2 rounded-md text-base font-medium" style={{ backgroundColor: "var(--surface-soft)" }}>Home</Link>
-            <Link to="/about" className="block px-3 py-2 rounded-md text-base font-medium" style={{ backgroundColor: "var(--surface-soft)" }}>About</Link>
-            <Link to="/support" className="block px-3 py-2 rounded-md text-base font-medium" style={{ backgroundColor: "var(--surface-soft)" }}>Support</Link>
-            <button
-                  onClick={() => {
-                    logoutHandler();
-                  }}
-                  className="block w-full text-left px-3 py-2 rounded-md text-base font-medium"
-                  style={{ backgroundColor: "#ef4444", color: "white" }}
-                >
-                  Logout
-            </button>
+            {user ? (
+              <button
+                onClick={() => { setNavOpen(false); logoutHandler(); }}
+                className="mt-2 block w-full rounded-md px-3 py-2 text-left text-base font-medium"
+                style={{ backgroundColor: "#ef4444", color: "white" }}
+              >Logout</button>
+            ) : (
+              <Link to="/login" onClick={() => setNavOpen(false)} className="mt-2 block rounded-md px-3 py-2 text-base font-medium" style={{ backgroundColor: "var(--surface-soft)" }}>Login</Link>
+            )}
           </div>
         </div>
       )}

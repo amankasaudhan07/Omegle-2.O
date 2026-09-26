@@ -108,20 +108,20 @@ const Login = () => {
     <>
       <Navbar />
       <div
-        className="min-h-screen flex items-center justify-center px-4"
+        className="flex min-h-[calc(100svh-4rem)] items-center justify-center overflow-x-hidden px-3 py-3 sm:px-4 sm:py-5"
         style={{ backgroundColor: "var(--bg)" }}
       >
         <div
-          className="w-full max-w-md rounded-[28px] border p-8 shadow-md"
+          className="w-full max-w-md rounded-[24px] border p-4 shadow-md sm:rounded-[28px] sm:p-6"
           style={{ backgroundColor: "var(--surface)", borderColor: "var(--border)", color: "var(--text)" }}
         >
-          <h2 className="mb-6 text-center text-2xl font-bold">
+          <h2 className="mb-3 text-center text-2xl font-bold sm:mb-5">
             {isLogin ? 'Login' : 'Sign Up'}
           </h2>
           <form onSubmit={isLogin ? handleLogin : handleSignUp}>
             {!isLogin && (
               <>
-                <div className="relative mx-auto mb-4 h-32 w-32">
+                <div className="relative mx-auto mb-3 h-20 w-20 sm:mb-4 sm:h-24 sm:w-24">
                   <img
                     src={avatar.preview || '/api/placeholder/128/128'}
                     className="h-full w-full rounded-full border-4 object-cover"
@@ -147,7 +147,7 @@ const Login = () => {
                   <p className="mt-1 text-xs text-red-500">{avatar.error}</p>
                 )}
                 <input
-                  className="mb-4 w-full rounded-xl border p-3"
+                  className="mb-2 w-full rounded-xl border p-2.5 sm:mb-3 sm:p-3"
                   style={{ backgroundColor: "var(--surface)", borderColor: "var(--border)", color: "var(--text)" }}
                   type="text"
                   placeholder="Name"
@@ -156,7 +156,7 @@ const Login = () => {
                   required
                 />
                 <input
-                  className="mb-4 w-full rounded-xl border p-3"
+                  className="mb-2 w-full rounded-xl border p-2.5 sm:mb-3 sm:p-3"
                   style={{ backgroundColor: "var(--surface)", borderColor: "var(--border)", color: "var(--text)" }}
                   type="text"
                   placeholder="Bio"
@@ -167,7 +167,7 @@ const Login = () => {
               </>
             )}
             <input
-              className="mb-4 w-full rounded-xl border p-3"
+              className="mb-2 w-full rounded-xl border p-2.5 sm:mb-3 sm:p-3"
               style={{ backgroundColor: "var(--surface)", borderColor: "var(--border)", color: "var(--text)" }}
               type="text"
               placeholder="Username"
@@ -179,7 +179,7 @@ const Login = () => {
               <p className="mb-4 mt-1 text-xs text-red-500">{username.error}</p>
             )}
             <input
-              className="mb-6 w-full rounded-xl border p-3"
+              className="mb-3 w-full rounded-xl border p-2.5 sm:mb-5 sm:p-3"
               style={{ backgroundColor: "var(--surface)", borderColor: "var(--border)", color: "var(--text)" }}
               type="password"
               placeholder="Password"
@@ -188,7 +188,7 @@ const Login = () => {
               required
             />
             <button
-              className="w-full rounded-2xl p-3 text-white transition duration-300 disabled:opacity-50"
+              className="w-full rounded-2xl p-2.5 text-white transition duration-300 disabled:opacity-50 sm:p-3"
               style={{ backgroundColor: "var(--brand)" }}
               type="submit"
               disabled={isLoading}
@@ -196,7 +196,7 @@ const Login = () => {
               {isLogin ? 'Login' : 'Sign Up'}
             </button>
           </form>
-          <div className="mt-4 text-center">
+          <div className="mt-3 text-center sm:mt-4">
             <button
               className="font-medium"
               style={{ color: "var(--brand)" }}
