@@ -1,12 +1,11 @@
 import React from "react";
-import { Avatar } from "@mui/material";
 import {
   Face as FaceIcon,
   AlternateEmail as UserNameIcon,
   CalendarMonth as CalendarIcon,
 } from "@mui/icons-material";
 import moment from "moment";
-import { transformImage } from "../../lib/features";
+import AvatarUpload from "../shared/AvatarUpload";
 
 const Profile = ({ user }) => {
   return (
@@ -14,18 +13,7 @@ const Profile = ({ user }) => {
       className="flex flex-col items-center space-y-8 md:space-y-6 px-4 md:px-0 transition-all duration-300"
       style={{ color: "var(--text)" }}
     >
-      <Avatar
-        src={transformImage(user?.avatar?.url)}
-        alt="Avatar"
-        sx={{
-          width: { xs: 120, sm: 150, md: 200 },
-          height: { xs: 120, sm: 150, md: 200 },
-          objectFit: "cover",
-          mb: 2,
-          border: "5px solid var(--border)",
-          boxShadow: "0 8px 25px rgba(0,0,0,0.15)",
-        }}
-      />
+      <AvatarUpload user={user} className="h-28 w-28 border-4 border-[var(--border)] shadow-lg sm:h-36 sm:w-36 md:h-48 md:w-48" />
 
       <ProfileCard heading="Bio" text={user?.bio || "No bio added"} />
 

@@ -1,13 +1,17 @@
 import React from "react";
 import { transformImage } from "../../lib/features";
+import UserAvatar from "./UserAvatar";
 
-const AvatarCard = ({ avatar = [], max = 4 }) => {
-  const avatars = Array.isArray(avatar) ? avatar : [];
+const AvatarCard = ({ avatar = [], max = 4, fallbackText = "" }) => {
+  const avatars = (Array.isArray(avatar) ? avatar : []).filter(Boolean);
   const displayAvatars = avatars.slice(0, max);
   const remainingAvatars = avatars.length - max;
 
   return (
     <div className="relative h-10 w-12 shrink-0 sm:h-12 sm:w-16">
+      {displayAvatars.length === 0 && (
+        <UserAvatar name={fallbackText} className="h-10 w-10 sm:h-12 sm:w-12" />
+      )}
       {displayAvatars.map((avatarSrc, index) => (
         <img
           key={`${avatarSrc}-${index}`}

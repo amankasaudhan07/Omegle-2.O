@@ -3,23 +3,40 @@ import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import Navbar from './Navbar';
 import { useTheme } from "../layout/ThemeProvider";
+import { sendSupportEmail } from "../../lib/sendSupportEmail";
 
 const Contact = () => {
     useTheme();
     const navigate =useNavigate();
     const [form, setForm] = useState({ name: '', email: '', message: '' });
+    const [isSubmitting, setIsSubmitting] = useState(false);
     
     const handleInputChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });
     };
     
-    const handleSubmit = (e) => {
-    //   const toastId = toast.loading(); 
-    // e.preventDefault();
-    toast.success('We will try to contact u soon :)');
-    // Handle form submission logic (e.g., send email or store in database)
-    console.log('Form submitted:', form);
-     navigate('/support');
+    const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (isSubmitting) return;
+
+    setIsSubmitting(true);
+    const toastId = toast.loading('Sending your message...');
+    try {
+      await sendSupportEmail({
+        form_type: 'Contact',
+        name: form.name,
+        email: form.email,
+        reply_to: form.email,
+        subject: 'Contact form message',
+        message: form.message,
+      });
+      toast.success('Your message has been sent.', { id: toastId });
+      navigate('/support');
+    } catch (error) {
+      toast.error(error?.text || error?.message || 'Could not send your message. Please try again.', { id: toastId });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -57,7 +74,7 @@ const Contact = () => {
            {/* name */}
            <div className="mb-7">
               <label
-                htmlFor="email"
+                htmlFor="name"
                 className="block font-semibold mb-2"
                 style={{ color: "var(--text)" }}
               >
@@ -111,7 +128,7 @@ const Contact = () => {
             {/* Issue */}
             <div className="mb-8">
               <label
-                htmlFor="issue"
+                htmlFor="message"
                 className="block font-semibold mb-2"
                 style={{ color: "var(--text)" }}
               >
@@ -119,10 +136,10 @@ const Contact = () => {
               </label>
 
               <textarea
-                id="issue"
-                name="issue"
+                id="message"
                 rows="7"
-                value={form.issue}
+                name="message"
+                value={form.message}
                 onChange={handleInputChange}
                 placeholder="Describe your issue..."
                 required
@@ -138,13 +155,14 @@ const Contact = () => {
             {/* Button */}
             <button
               type="submit"
+              disabled={isSubmitting}
               className="w-full py-3 rounded-xl text-white font-semibold text-lg shadow-lg transition-all duration-300 hover:scale-[1.02] active:scale-95"
               style={{
                 background:
                   "linear-gradient(to right, #ef4444, #dc2626)",
               }}
             >
-              Submit
+              {isSubmitting ? 'Sending...' : 'Submit'}
             </button>
           </form>
         </div>

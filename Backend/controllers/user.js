@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken';
 import { Chat } from '../models/chat.js'
 import { Request } from '../models/request.js';
-import { emitEvent,uploadFilesToCloudinary,cookieOptions,sendToken } from '../utils/features.js';
+import { emitEvent,uploadFilesToCloudinary,deletFilesFromCloudinary,cookieOptions,sendToken } from '../utils/features.js';
 import { ALERT,NEW_REQUEST, REFETCH_CHATS,RELATION_UPDATED ,CHAT_CREATED} from '../constants/events.js';
 import {getOtherMember} from '../lib/helper.js'
 
@@ -13,21 +13,17 @@ export const newUser = async (req, res) => {
   const file = req.file;
 
   try {
-    if (!file) return res.json({message:"Please Upload Avatar"});
-  
-    const result = await uploadFilesToCloudinary([file]);
-  
-    const avatar = {
-      public_id: result[0].public_id,
-      url: result[0].url,
-    };
-
     let user;
     user = await User.findOne({ username });
     if (user) {
       // console.log("user detail : ",user);
       return res.json({ message: "UserName already exist...", success: false });
     }
+
+    const result = file ? await uploadFilesToCloudinary([file]) : [];
+    const avatar = result.length
+      ? { public_id: result[0].public_id, url: result[0].url }
+      : { public_id: "", url: "" };
 
      user = await User.create({
       name,
@@ -43,6 +39,56 @@ export const newUser = async (req, res) => {
     res.json({ message: error.message })
   }
 }
+
+export const updateAvatar = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: "Please choose an avatar image" });
+    }
+
+    const user = await User.findById(req.user);
+    if (!user) return res.status(404).json({ success: false, message: "User not found" });
+
+    const [uploadedAvatar] = await uploadFilesToCloudinary([req.file]);
+    const previousPublicId = user.avatar?.public_id;
+
+    user.avatar = {
+      public_id: uploadedAvatar.public_id,
+      url: uploadedAvatar.url,
+    };
+    await user.save();
+
+    try {
+      const chatMembers = await Chat.distinct("members", { members: user._id });
+      emitEvent(req, REFETCH_CHATS, chatMembers);
+    } catch (refreshError) {
+      console.error("Could not refresh chats after avatar update:", refreshError);
+    }
+
+    if (previousPublicId) {
+      try {
+        await deletFilesFromCloudinary([previousPublicId]);
+      } catch (cleanupError) {
+        console.error("Could not remove previous avatar from Cloudinary:", cleanupError);
+      }
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Profile photo updated",
+      user: {
+        _id: user._id,
+        name: user.name,
+        username: user.username,
+        bio: user.bio,
+        avatar: user.avatar,
+        createdAt: user.createdAt,
+      },
+    });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message || "Could not update profile photo" });
+  }
+};
 
 export const login = async (req, res) => {
   const { username, password } = req.body;
@@ -132,7 +178,7 @@ const searchUser = async (req, res) => {
     const users = allUsersExceptMeAndFriends.map(({ _id, name, avatar }) => ({
       _id,
       name,
-      avatar: avatar.url|| "",
+      avatar: avatar?.url || "",
     }));
 
     return res.status(200).json({
@@ -280,7 +326,7 @@ const getMyNotifications = async (req, res) => {
       sender: {
         _id: sender._id,
         name: sender.name,
-        avatar: sender.avatar.url,
+        avatar: sender.avatar?.url || "",
       },
     }));
 
@@ -309,7 +355,7 @@ const getMyFriends = async (req, res) => {
       return {
         _id: otherUser._id,
         name: otherUser.name,
-        avatar: otherUser.avatar.url,
+        avatar: otherUser.avatar?.url || "",
       };
     });
 

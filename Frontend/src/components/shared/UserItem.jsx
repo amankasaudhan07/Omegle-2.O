@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import { transformImage } from "../../lib/features";
+import UserAvatar from "./UserAvatar";
 
 const UserItem = ({
   user,
@@ -12,11 +12,7 @@ const UserItem = ({
 
   return (
     <div className="flex items-center space-x-4 py-2 px-4" style={styling}>
-      <img 
-        src={transformImage(avatar)} 
-        alt={name}
-        className="w-10 h-10 rounded-full object-cover"
-      />
+    <UserAvatar name={name} src={avatar} className="h-10 w-10" />
       <div className="flex-grow min-w-0">
         <p className="text-sm font-medium text-gray-900 truncate">
           {name}

@@ -15,10 +15,13 @@ import { useNavigate } from "react-router-dom";
 import { TypingLoader } from "../components/layout/Loader";
 import { CHAT_JOINED, CHAT_LEAVED, NEW_MESSAGE, START_TYPING, STOP_TYPING } from "../constants/events";
 import { useTheme } from "../components/layout/ThemeProvider";
+import UserAvatar from "../components/shared/UserAvatar";
+
+const EMPTY_MEMBERS = [];
 
 
 
-const Chat = ({ chatId ,user}) => {
+const Chat = ({ chatId, user, onlineUsers = [] }) => {
   // const { user } = useSelector((state) => state.auth);
   
   // console.log("user",user);
@@ -42,7 +45,7 @@ const Chat = ({ chatId ,user}) => {
   const [typingUsers, setTypingUsers] = useState([]);
   const typingTimeout = useRef(null);
 
-  const chatDetails = useChatDetailsQuery({ chatId, skip: !chatId });
+  const chatDetails = useChatDetailsQuery({ chatId, populate: true, skip: !chatId });
   
 
   
@@ -64,10 +67,20 @@ const Chat = ({ chatId ,user}) => {
   
   // console.log("aman",chatDetails);
   const chat = chatDetails?.data?.chat;
-  const members = chat?.members;
+  const members = chat?.members || EMPTY_MEMBERS;
+  const memberIds = useMemo(
+    () => members.map((member) => member?._id ?? member),
+    [members]
+  );
+  const otherMember = chat?.groupChat
+    ? null
+    : members.find((member) => String(member?._id) !== String(user?._id));
   const conversationName = chat?.groupChat
     ? chat?.name
-    : members?.find((member) => member?._id !== user?._id)?.name;
+    : otherMember?.name;
+  const isOtherMemberOnline = otherMember
+    ? onlineUsers.some((onlineUser) => String(onlineUser?._id ?? onlineUser) === String(otherMember._id))
+    : false;
 //   console.log("members ->", members);
 // console.log("members type ->", Array.isArray(members));
 // console.log("first member ->", members?.[0]);
@@ -77,7 +90,7 @@ const Chat = ({ chatId ,user}) => {
     if (!IamTyping) {
       // socket.emit(START_TYPING, { members, chatId });
       socket.emit(START_TYPING, {
-        members,
+        members: memberIds,
         chatId,
         userId: user._id,
         name: user.name,
@@ -89,7 +102,7 @@ const Chat = ({ chatId ,user}) => {
     typingTimeout.current = setTimeout(() => {
       // socket.emit(STOP_TYPING, { members, chatId });
       socket.emit(STOP_TYPING, {
-        members,
+        members: memberIds,
         chatId,
         userId: user._id,
       });
@@ -106,17 +119,17 @@ const Chat = ({ chatId ,user}) => {
   const submitHandler = (e) => {
     e.preventDefault();
     if (!message.trim()) return;
-    socket.emit(NEW_MESSAGE, { chatId, members, message });
+    socket.emit(NEW_MESSAGE, { chatId, members: memberIds, message });
     setMessage("");
   };
 
   useEffect(() => {
-    socket.emit(CHAT_JOINED, { userId: user._id, members });
+    socket.emit(CHAT_JOINED, { userId: user._id, members: memberIds });
     dispatch(removeNewMessagesAlert(chatId));
     return () => {
-      socket.emit(CHAT_LEAVED, { userId: user._id, members });
+      socket.emit(CHAT_LEAVED, { userId: user._id, members: memberIds });
     };
-  }, [chatId]);
+  }, [chatId, user._id, memberIds, dispatch, socket]);
 
   useEffect(() => {
   setMessages([]);        // clear real-time messages
@@ -175,12 +188,22 @@ const stopTypingListener = useCallback((data) => {
     <Fragment >
       <div className="flex h-full min-h-0 min-w-0 flex-col gap-2 app-shell sm:gap-3">
         <div className="flex shrink-0 items-center gap-3 rounded-2xl border px-3 py-2 sm:px-4" style={{ backgroundColor: "var(--surface)", borderColor: "var(--border)" }}>
-          <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-sm font-semibold text-white sm:h-10 sm:w-10" style={{ backgroundColor: "var(--brand)" }}>
-            {(conversationName || "C").slice(0, 1).toUpperCase()}
+          <div className="relative h-10 w-10 shrink-0 sm:h-11 sm:w-11">
+            <UserAvatar
+              name={conversationName}
+              src={otherMember?.avatar}
+              className="h-full w-full text-sm"
+            />
+            {!chat?.groupChat && (
+              <span className={`absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 ${isOtherMemberOnline ? "border-white bg-emerald-500" : "border-white bg-slate-400"}`} aria-label={isOtherMemberOnline ? "Online" : "Offline"} />
+            )}
           </div>
           <div className="min-w-0">
             <p className="truncate text-sm font-semibold sm:text-base" style={{ color: "var(--text)" }}>{conversationName || "Conversation"}</p>
-            <p className="text-xs app-muted">Your messages</p>
+            <p className="flex items-center gap-1.5 text-xs app-muted">
+              {!chat?.groupChat && <span className={`h-1.5 w-1.5 rounded-full ${isOtherMemberOnline ? "bg-emerald-500" : "bg-slate-400"}`} />}
+              {chat?.groupChat ? `${members.length} members` : isOtherMemberOnline ? "Online" : "Offline"}
+            </p>
           </div>
         </div>
         <div

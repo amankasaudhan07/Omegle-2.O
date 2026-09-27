@@ -42,6 +42,16 @@ const api = createApi({
      
     }),
 
+    updateAvatar: builder.mutation({
+      query: (formData) => ({
+        url: "user/avatar",
+        method: "PUT",
+        credentials: "include",
+        body: formData,
+      }),
+      invalidatesTags: ["Chat", "User"],
+    }),
+
     getNotifications: builder.query({
       query: () => ({
         url: `user/notifications`,
@@ -190,4 +200,5 @@ export const {
   useDeleteChatMutation,
   useLeaveGroupMutation,
   useGetRelationStatusQuery,
+  useUpdateAvatarMutation,
 } = api;

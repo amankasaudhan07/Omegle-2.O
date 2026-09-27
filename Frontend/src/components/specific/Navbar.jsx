@@ -8,6 +8,8 @@ import axios from 'axios';
 import { server } from '../../constants/config';
 import logo from '../../assets/logo.png';
 import { useTheme } from '../layout/ThemeProvider';
+import AvatarUpload from '../shared/AvatarUpload';
+import UserAvatar from '../shared/UserAvatar';
 
 
 
@@ -103,12 +105,7 @@ const Navbar = () => {
                   className="ml-4 flex items-center rounded-full transition"
                   style={{ backgroundColor: "var(--surface-soft)" }}
                 >
-                  <img
-                    src={user.avatar?.url || "/default.png"}
-                    alt="profile"
-                    className="w-10 h-10 rounded-full object-cover"
-                    style={{ border: "1px solid var(--border)" }}
-                  />
+                  <UserAvatar name={user.name} src={user.avatar} className="h-10 w-10 border" />
                  
                 </button>
 
@@ -123,11 +120,7 @@ const Navbar = () => {
                   >
                     <div className="p-5" style={{ backgroundColor: "var(--accent)", color: isDarkMode ? "#111827" : "#ffffff" }}>
                       <div className="flex items-center gap-4">
-                        <img
-                          src={user.avatar?.url || "/default.png"}
-                          alt="profile"
-                          className="w-16 h-16 rounded-full object-cover border-2 border-white"
-                        />
+                        <AvatarUpload user={user} className="h-16 w-16 border-2 border-white" />
                         <div>
                           <h3 className="text-lg font-semibold">{user.name}</h3>
                           <p className="text-sm text-gray-300">@{user.username}</p>
@@ -212,12 +205,7 @@ const Navbar = () => {
         
             {user && (
                 <div className="px-3 py-3 border-b flex items-center gap-3" style={{ borderColor: "var(--border)" }}>
-                  <img
-                    src={user.avatar?.url || "/default.png"}
-                    alt="profile"
-                    className="w-12 h-12 rounded-full object-cover"
-                    style={{ border: "1px solid var(--border)" }}
-                  />
+                  <AvatarUpload user={user} className="h-12 w-12 border" />
                   <div>
                     <p className="font-semibold">{user.name}</p>
                     <p className="text-sm app-muted">@{user.username}</p>

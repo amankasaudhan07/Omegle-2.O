@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { setIsAddMember } from '../../redux/reducers/misc';
 import { useAddGroupMembersMutation, useAvailableFriendsQuery } from '../../redux/api/api';
 import { UserPlus, X } from 'lucide-react';
+import UserAvatar from '../shared/UserAvatar';
 
 const UserItem = ({ user, handler, isAdded }) => (
   <div 
@@ -11,11 +12,7 @@ const UserItem = ({ user, handler, isAdded }) => (
     }`} 
     onClick={() => handler(user._id)}
   >
-    <img 
-      src={user.avatar} 
-      alt={user.name} 
-      className="w-10 h-10 rounded-full mr-3"
-    />
+    <UserAvatar name={user.name} src={user.avatar} className="mr-3 h-10 w-10" />
     <span className="flex-grow">{user.name}</span>
     {isAdded && <UserPlus className="w-5 h-5 text-blue-500" />}
   </div>

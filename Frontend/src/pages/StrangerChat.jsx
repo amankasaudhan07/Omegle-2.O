@@ -14,6 +14,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { RELATION_UPDATED, CHAT_CREATED } from "../constants/events";
 import { useTheme } from "../components/layout/ThemeProvider";
+import UserAvatar from "../components/shared/UserAvatar";
 
 const StrangerChat = ({
   socket,
@@ -283,10 +284,10 @@ const StrangerChat = ({
             <div className={dividerClass}>
               <div className={partnerCardClass}>
                 <div className="relative mx-auto sm:mx-0">
-                  <img
-                    src={partner.avatar.url || "/default.png"}
-                    alt="avatar"
-                    className={`h-16 w-16 rounded-2xl object-cover ${
+                  <UserAvatar
+                    name={partner.name || partner.username}
+                    src={partner.avatar?.url}
+                    className={`h-16 w-16 rounded-2xl ${
                       isDarkMode ? "border border-slate-600" : "border border-slate-200"
                     }`}
                   />

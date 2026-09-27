@@ -1,4 +1,5 @@
 import React, { memo } from 'react';
+import UserAvatar from '../shared/UserAvatar';
 import { useDispatch, useSelector } from 'react-redux';
 import { useAsyncMutation, useErrors } from '../../hooks/hook';
 import {
@@ -112,11 +113,7 @@ const NotificationItem = memo(({ sender, _id, handler }) => {
 
   return (
     <div className="flex items-center space-x-4 py-3">
-      <img
-        className="h-10 w-10 rounded-full"
-        src={avatar || '/placeholder-avatar.png'}
-        alt={`${name}'s avatar`}
-      />
+      <UserAvatar className="h-10 w-10" name={name} src={avatar} />
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-medium" style={{ color: "var(--text)" }}>
           {`${name} sent you a friend request.`}

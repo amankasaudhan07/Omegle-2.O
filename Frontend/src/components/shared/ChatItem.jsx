@@ -39,7 +39,7 @@ const ChatItem = ({
         }`}
         style={{ borderBottom: "1px solid var(--border)" }}
       >
-        <AvatarCard avatar={avatar} />
+        <AvatarCard avatar={avatar} fallbackText={name} />
         <div className="min-w-0 flex-1 pr-10">
           <h3 className="truncate text-base font-semibold sm:text-lg">{name}</h3>
           {newMessageAlert && (

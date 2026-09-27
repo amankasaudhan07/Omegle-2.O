@@ -7,6 +7,7 @@ import { server } from '../constants/config';
 import { userExists } from '../redux/reducers/auth';
 import Navbar from '../components/specific/Navbar';
 import { useTheme } from '../components/layout/ThemeProvider';
+import UserAvatar from '../components/shared/UserAvatar';
 
 const useInputValidation = (initialValue, validator) => {
   const [value, setValue] = useState(initialValue);
@@ -84,7 +85,7 @@ const Login = () => {
     setIsLoading(true);
 
     const formData = new FormData();
-    formData.append('avatar', avatar.file);
+    if (avatar.file) formData.append('avatar', avatar.file);
     formData.append('name', name.value);
     formData.append('bio', bio.value);
     formData.append('username', username.value);
@@ -122,14 +123,16 @@ const Login = () => {
             {!isLogin && (
               <>
                 <div className="relative mx-auto mb-3 h-20 w-20 sm:mb-4 sm:h-24 sm:w-24">
-                  <img
-                    src={avatar.preview || '/api/placeholder/128/128'}
-                    className="h-full w-full rounded-full border-4 object-cover"
-                    style={{ borderColor: "var(--border)" }}
+                  <UserAvatar
+                    name={name.value}
+                    src={avatar.preview}
+                    className="h-full w-full border-4"
                   />
                   <label
                     className="absolute bottom-0 right-0 cursor-pointer rounded-full p-2"
                     style={{ backgroundColor: "var(--accent)" }}
+                    aria-label="Add an optional profile photo"
+                    title="Add an optional profile photo"
                   >
                    <Camera
                       className="h-5 w-5"
@@ -143,6 +146,7 @@ const Login = () => {
                     />
                   </label>
                 </div>
+                <p className="mb-3 -mt-1 text-center text-xs app-muted">Profile photo is optional</p>
                 {avatar.error && (
                   <p className="mt-1 text-xs text-red-500">{avatar.error}</p>
                 )}

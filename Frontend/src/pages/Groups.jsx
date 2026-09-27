@@ -307,7 +307,7 @@ const GroupListItem = ({ group, chatId }) => {
       }}
       className="flex  gap-4 p-4 rounded-lg hover:bg-gray-800 transition"
     >
-      <AvatarCard avatar={avatar} />
+      <AvatarCard avatar={avatar} fallbackText={name} />
       <span className="text-white text-2xl font-bold">{name}</span>
     </Link>
   );

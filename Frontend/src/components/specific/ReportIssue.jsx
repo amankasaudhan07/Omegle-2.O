@@ -3,6 +3,7 @@ import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import Navbar from "./Navbar";
 import { useTheme } from "../layout/ThemeProvider";
+import { sendSupportEmail } from "../../lib/sendSupportEmail";
 
 const ReportIssue = () => {
   const navigate = useNavigate();
@@ -11,21 +12,38 @@ const ReportIssue = () => {
   useTheme();
 
   const [form, setForm] = useState({
+    name: "",
     email: "",
     issue: "",
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleInputChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    if (isSubmitting) return;
 
-    toast.success("Your issue has been reported!");
-    console.log("Issue reported:", form);
-
-    navigate("/support");
+    setIsSubmitting(true);
+    const toastId = toast.loading("Sending your issue report...");
+    try {
+      await sendSupportEmail({
+        form_type: "Issue report",
+        name: form.name,
+        email: form.email,
+        reply_to: form.email,
+        subject: "Issue report",
+        message: form.issue,
+      });
+      toast.success("Your issue report has been sent.", { id: toastId });
+      navigate("/support");
+    } catch (error) {
+      toast.error(error?.text || error?.message || "Could not send your report. Please try again.", { id: toastId });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -70,6 +88,31 @@ const ReportIssue = () => {
               border: "1px solid var(--border)",
             }}
           >
+            <div className="mb-7">
+              <label
+                htmlFor="name"
+                className="mb-2 block font-semibold"
+                style={{ color: "var(--text)" }}
+              >
+                Name
+              </label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                value={form.name}
+                onChange={handleInputChange}
+                placeholder="Enter your name"
+                required
+                className="w-full rounded-xl border px-4 py-3 outline-none transition-all duration-300 focus:ring-2 focus:ring-blue-500"
+                style={{
+                  backgroundColor: "var(--bg)",
+                  color: "var(--text)",
+                  borderColor: "var(--border)",
+                }}
+              />
+            </div>
+
             {/* Email */}
             <div className="mb-7">
               <label
@@ -127,13 +170,14 @@ const ReportIssue = () => {
             {/* Button */}
             <button
               type="submit"
+              disabled={isSubmitting}
               className="w-full py-3 rounded-xl text-white font-semibold text-lg shadow-lg transition-all duration-300 hover:scale-[1.02] active:scale-95"
               style={{
                 background:
                   "linear-gradient(to right, #ef4444, #dc2626)",
               }}
             >
-              Submit Issue
+              {isSubmitting ? "Sending..." : "Submit Issue"}
             </button>
           </form>
         </div>

@@ -19,6 +19,7 @@ import {
 import logo from '../../assets/logo.png'
 import { Badge } from "@mui/material";
 import { useTheme } from './ThemeProvider';
+import AvatarUpload from '../shared/AvatarUpload';
 
 const SearchDialog = lazy(() => import('../specific/Search'));
 const NotificationDialog = lazy(() => import('../specific/Notifications'));
@@ -37,6 +38,7 @@ const Header = () => {
     (state) => state.misc
   );
   const { notificationCount } = useSelector((state) => state.chat);
+  const { user } = useSelector((state) => state.auth);
 
   const handleMobile = () => dispatch(setIsMobile(true));
   const openSearch = () => dispatch(setIsSearch(true));
@@ -80,6 +82,9 @@ const Header = () => {
               </button>
             </div>
             <div className="flex shrink-0 items-center gap-0.5 sm:gap-3">
+              <div className="hidden xl:hidden sm:block">
+                <AvatarUpload user={user} className="h-9 w-9" />
+              </div>
               <button
                 className="hidden sm:block px-4 py-2 rounded-full text-sm font-semibold"
                 onClick={toggleTheme}

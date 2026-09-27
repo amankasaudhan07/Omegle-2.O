@@ -12,6 +12,7 @@ import DeleteChatMenu from '../dialogs/DeleteChatMenu';
 import ChatList from '../specific/ChatList';
 import Profile from '../specific/Profile';
 import Header from './Header';
+import AvatarUpload from '../shared/AvatarUpload';
 
 // AppLayout as a Higher-Order Component
 const AppLayout = (WrappedComponent) => {
@@ -86,6 +87,9 @@ const AppLayout = (WrappedComponent) => {
                 <h2 className="font-semibold">Your chats</h2>
                 <button onClick={handleMobileClose} className="rounded-lg px-3 py-1.5 text-sm font-medium" style={{ backgroundColor: "var(--surface-soft)" }}>Close</button>
               </div>
+              <div className="shrink-0 border-b px-4 py-3" style={{ borderColor: "var(--border)" }}>
+                <AvatarUpload user={user} className="h-11 w-11" showLabel />
+              </div>
               {isLoading ? (
                 <div className="m-3 h-20 animate-pulse rounded-xl bg-gray-300" />
               ) : (
@@ -121,7 +125,7 @@ const AppLayout = (WrappedComponent) => {
 
           {/* Main Content */}
           <div className="min-h-0 min-w-0 flex-1 overflow-y-auto">
-            <WrappedComponent {...props} chatId={chatId} user={user} />
+            <WrappedComponent {...props} chatId={chatId} user={user} onlineUsers={onlineUsers} />
           </div>
 
           {/* Profile - Hidden on mobile and small screens */}

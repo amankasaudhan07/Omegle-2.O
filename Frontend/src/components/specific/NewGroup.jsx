@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import UserAvatar from "../shared/UserAvatar";
 import { useDispatch, useSelector } from "react-redux";
 import { useInputValidation } from "6pp";
 import {
@@ -120,11 +121,7 @@ const UserItem = ({ user, selected, onClick }) => (
       color: "var(--text)",
     }}
   >
-    <img
-      src={user.avatar || "/placeholder-avatar.png"}
-      alt={user.name}
-      className="h-10 w-10 rounded-full"
-    />
+    <UserAvatar name={user.name} src={user.avatar} className="h-10 w-10" />
     <span className="flex-1 text-sm">{user.name}</span>
     {selected && <span className="text-blue-500">+</span>}
   </div>
