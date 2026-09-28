@@ -38,22 +38,26 @@ const About = () => {
               <p className="mb-6 text-lg leading-relaxed md:text-xl lg:text-2xl app-muted">
                 Enjoy a safe and interactive experience. Start a chat, share moments, and explore limitless connections.
               </p>
-              <div>
-                <button
-                  className="mt-8 rounded-2xl px-6 py-3 text-lg text-white shadow-md transition"
-                  style={{ backgroundColor: "var(--brand)" }}
-                  onClick={() => { navigate('/newChat') }}
-                >
-                  Chat With Strangers
-                </button>
-                <button
-                  className="ml-4 mt-8 rounded-2xl px-6 py-3 text-lg text-white shadow-md transition"
-                  style={{ backgroundColor: isDarkMode ? "#374151" : "#0f172a" }}
-                  onClick={() => { navigate('/friends') }}
-                >
-                  Chat With Your Friends
-                </button>
-              </div>
+             <div className="mt-8 flex flex-col gap-4 sm:flex-row">
+            <button
+              className="rounded-2xl px-6 py-3 text-lg text-white shadow-md transition"
+              style={{ backgroundColor: "var(--brand)" }}
+              onClick={() => {
+                navigate('/newChat');
+              }}
+            >
+              Chat With Strangers
+            </button>
+            <button
+              className="rounded-2xl px-6 py-3 text-lg text-white shadow-md transition"
+              style={{ backgroundColor: isDarkMode ? "#374151" : "#0f172a" }}
+              onClick={() => {
+                navigate('/friends');
+              }}
+            >
+              Chat With Your Friends
+            </button>
+          </div>
             </div>
           </div>
         </div>

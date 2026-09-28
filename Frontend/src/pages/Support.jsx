@@ -50,18 +50,22 @@ const Support = () => {
             </div>
           </div>
 
-          <div className="text-center">
+        <div className="mt-8 flex flex-col gap-4 sm:flex-row">
             <button
-              className="mt-8 rounded-2xl px-6 py-3 text-lg text-white shadow-md transition"
+              className="rounded-2xl px-6 py-3 text-lg text-white shadow-md transition"
               style={{ backgroundColor: "var(--brand)" }}
-              onClick={() => { navigate('/newChat') }}
+              onClick={() => {
+                navigate('/newChat');
+              }}
             >
               Chat With Strangers
             </button>
             <button
-              className="ml-4 mt-8 rounded-2xl px-6 py-3 text-lg text-white shadow-md transition"
+              className="rounded-2xl px-6 py-3 text-lg text-white shadow-md transition"
               style={{ backgroundColor: isDarkMode ? "#374151" : "#0f172a" }}
-              onClick={() => { navigate('/friends') }}
+              onClick={() => {
+                navigate('/friends');
+              }}
             >
               Chat With Your Friends
             </button>
